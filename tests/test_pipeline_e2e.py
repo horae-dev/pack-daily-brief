@@ -446,34 +446,19 @@ def test_an_obeyed_embed_never_reaches_the_vault(
     assert morning.tasks.tasks == {}
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="known hole, horae-dev/horae#128: the guard lets these through today",
+@pytest.mark.parametrize(
+    "case", ["injected-link", "injected-checkbox", "injected-wikilink", "injected-marker"]
 )
-@pytest.mark.parametrize("case", ["injected-link", "injected-checkbox", "injected-wikilink"])
-def test_an_obeyed_link_checkbox_or_wikilink_never_reaches_the_vault(
+def test_an_obeyed_injection_never_reaches_the_vault(
     instance: Instance, store: Store, tmp_path: Path, case: str
 ) -> None:
-    """What #128 must make true. Strict: when the core refuses them, these pass, the xfail
-    fails, and the marker (and the cases' `guard:`) must be updated."""
+    """The note guard (decision 55) and `links: none` refuse the step: the act step is
+    skipped, the run degrades and no note is written."""
     morning = Morning(instance, store, tmp_path / "vault", case)
     record = morning.run()
     assert record.status == "degraded"
-    assert not morning.note.exists()
-
-
-def test_an_obeyed_plain_marker_fails_the_run_at_apply_today(
-    instance: Instance, store: Store, tmp_path: Path
-) -> None:
-    """Known hole, horae-dev/horae#128: the model copied the plain-text `horae:end` marker of a
-    title (`injected-marker`). The guard passes it; the note writer then refuses the block,
-    so no note is written. #128 moves the refusal to the guard, so that only the step
-    degrades (and then this test, and the case's `guard: pass`, change)."""
-    morning = Morning(instance, store, tmp_path / "vault", "injected-marker")
-    record = morning.run()
-    assert record.status == "failed"
-    assert record.error is not None
-    assert record.error.startswith("plan_invalid"), record.error
-    assert "content_has_marker" in record.error
+    llm = next(step for step in record.steps if step.kind == "llm")
+    assert llm.error is not None
+    assert llm.error.kind == "guard_violation"
     assert not morning.note.exists()
     assert morning.tasks.tasks == {}

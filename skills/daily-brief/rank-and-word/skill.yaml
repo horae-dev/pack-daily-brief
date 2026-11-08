@@ -24,11 +24,11 @@
 # model (schemas decision 47 B); `class: free_text` marks the text written by other people
 # (it is counted in the request's de-identification summary, not scanned differently).
 #
-# TODO(horae-dev/horae#128): add `links: none` once the core supports it, so the guard
-# refuses every link and URL in the note (the brief needs none; today a URL that is in a
-# viewed title passes the guard).
+# `links: none`: the guard refuses every link and URL in the note (the brief needs none), even
+# one whose URL is in a viewed title.
 name: daily-brief/rank-and-word
 version: 0.1.0
+links: none
 description: Rank the morning's tasks, reviews and events and word a short note.
 input_view:
   "[].source":
