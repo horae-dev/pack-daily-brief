@@ -18,7 +18,14 @@ from pack import ROOT, SKILL, cases
 
 runner = CliRunner()
 
-MORNINGS = {"busy-morning", "empty-day", "hostile-title", "partial-sources", "second-day"}
+MORNINGS = {
+    "busy-morning",
+    "empty-day",
+    "hostile-title",
+    "partial-sources",
+    "second-day",
+    "snoozed-and-cut",
+}
 """The synthetic mornings (#2: 3 to 5, an empty day and a hostile title among them)."""
 
 OBEYED = {

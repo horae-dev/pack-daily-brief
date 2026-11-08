@@ -1,0 +1,86 @@
+# Synthetic data. A Monday with no events or GitHub work and four open tasks; the tasks source
+# is asked for 3 (`limit`), so it reports `more: 1`. "Call the plumber" is snoozed to Nov 12 (left
+# out: not due today); "Send the tax form" is snoozed to Nov 11 but due today (listed). The note
+# says the tasks list is incomplete. The input is the collect step's output for
+# pipelines/daily-brief.yaml on 2026-11-09 in Europe/Paris; the source's data is the output of
+# plugin-obsidian main's `open_tasks` on a vault of these lines (limit 3, clock at 05:30 UTC).
+schema_version: 1
+description: A snoozed task is left out unless due today; a cut task list is flagged.
+budget: { usd: 0.15, tokens_out: 4000 }
+targets:
+  note.replace_owned_block: Daily/2026-11-09.assistant.md
+input:
+  - source: calendar.events
+    params: {"start": "2026-11-09", "days": 2, "timezone": "Europe/Paris", "partial": true}
+    data:
+      window: {"start": "2026-11-09T00:00:00+01:00", "end": "2026-11-16T00:00:00+01:00", "timezone": "Europe/Paris", "days": 2}
+      complete: true
+      truncated: 0
+      calendars:
+        - {"name": "calendar-1", "ok": true, "complete": true, "events": 0, "skipped": 0, "truncated": 0, "warnings": 0}
+      events: []
+  - source: obsidian.open_tasks
+    params: {"limit": 3}
+    data:
+      tasks:
+        - {"key": "obsidian:task:Inbox.md:c281b3ba1957fbe0:0", "source_fingerprint": null, "description": "Send the tax form", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 3, "line_sha256": "a33cf0ff8e3df80f97110949a67833533317d28339812922a12fc7428b6cae9c", "heading": null, "due": "2026-11-09", "scheduled": null, "start": null, "reminder": {"date": "2026-11-11", "time": null}, "snoozed_until": "2026-11-11", "snoozed": true, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:7ddd4ff0de216a09:0", "source_fingerprint": null, "description": "Water the plants", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 4, "line_sha256": "607601f0d0559882c8f6390c57b6d4a24c4bcd9990ffd24ade2398e7cbf26a48", "heading": null, "due": "2026-11-10", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:4e9e5e96b4622879:0", "source_fingerprint": null, "description": "Call the plumber", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 1, "line_sha256": "b129667f7268274039bdcc74a93f0d20470d2e8d1d742d42c29dd199b4565239", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": {"date": "2026-11-12", "time": null}, "snoozed_until": "2026-11-12", "snoozed": true, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+      more: 1
+      output_cut: false
+      open_statuses: " /"
+      withheld: []
+      withheld_more: 0
+      hidden: []
+      hidden_more: 0
+      horae_output: 0
+      edited_horae_tasks: []
+      edited_more: 0
+      not_open_statuses: {}
+      complete: true
+      truncated: false
+      skipped: []
+      index: "ok"
+  - source: github.review_requests
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
+    data:
+      kind: "review_requested"
+      day: "2026-11-09"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.assigned
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true}
+    data:
+      kind: "assigned"
+      day: "2026-11-09"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.mentions
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true, "due_in_days": 0}
+    data:
+      kind: "mentioned"
+      day: "2026-11-09"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+expect:
+  schema_valid: true
+  assertions:
+    # Two tasks listed: the one due today (snoozed, but due today) and tomorrow's; the snoozed
+    # plumber call is left out.
+    - { pointer: /output/ranked, length: 2 }
+    - { pointer: /output/ranked/0/when, equals: today }
+    - { pointer: /output/ranked/1/when, equals: tomorrow }
+    - { pointer: /intents/0/content, contains: tax form }
+    - { pointer: /intents/0/content, contains: Water the plants }
+    - { pointer: /intents/0/content, contains: incomplete }
+  intent_counts: { note.replace_owned_block: 1 }
+  guard: pass

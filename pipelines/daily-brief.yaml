@@ -18,9 +18,10 @@ steps:
       # A calendar that fails gives the others' events (`complete: false`) instead of failing
       # the source: a partial brief beats no brief, and the note says the list is incomplete.
       - calendar.events: { start: "{{date}}", days: 2, timezone: "{{timezone}}", partial: true }
-      # plugin-obsidian#4 (in progress): open tasks, with `source_fingerprint` on the tasks
-      # Horae created from another source.
-      - obsidian.open_tasks: {}
+      # Open tasks of the vault (plugin-obsidian), by due date, with `source_fingerprint` on
+      # the tasks Horae created from another source. `limit` bounds what the model sees; the
+      # source says how many it left out (`more`) and the note then says the list is incomplete.
+      - obsidian.open_tasks: { limit: 100 }
       # Reviews and mentions are due the day they are collected; an assignment is due on its
       # milestone's date. `orgs` keeps only the owners `link_prefix` covers: an item of
       # another owner would be unrouted and fail the run.
@@ -40,7 +41,8 @@ steps:
   # writes only the owned block of today's assistant note.
   - act:
       - obsidian.write_note: { path: "Daily/{{date}}.assistant.md", mode: replace-owned }
-      # The github sources' tasks (sink of plugin-obsidian#4). A task's link is routed only
+      # The github sources' tasks (plugin-obsidian's task sink, which appends them to its
+      # owned `Tasks.assistant.md`; `note:` changes the file). A task's link is routed only
       # under a trusted `link_prefix`; without this entry, or with a link outside its prefix,
       # the task is unrouted and the run fails.
-      - obsidian.write_tasks: { mode: tasks, link_prefix: "https://github.com/Acme-Org/" }
+      - obsidian.write_task: { mode: tasks, link_prefix: "https://github.com/Acme-Org/" }

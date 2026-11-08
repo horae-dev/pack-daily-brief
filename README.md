@@ -4,7 +4,7 @@
 
 Horae pipeline pack: the morning note pipeline and its rank-and-word skill.
 
-> 🚧 **Early (0.1.0, unreleased), and it cannot run yet.** The pipeline needs two things plugin-obsidian does not have yet: the `obsidian.open_tasks` source and the sink that applies `task.create` (both [plugin-obsidian#4](https://github.com/horae-dev/plugin-obsidian/issues/4), in progress). Until they are released, `horae run daily-brief` fails at planning (an unknown tool). The pipeline and the skill pass their checks against the core's `main` with stand-ins of those plugins in their real or planned shapes. The wording of the note has **not been judged by the maintainer yet**: the golden answers are hand-written, not recorded from a model (see [Wording quality](#wording-quality)).
+> 🚧 **Early (0.1.0, unreleased).** The plugins the pipeline needs are merged (plugin-obsidian's `obsidian.open_tasks` source and `obsidian.write_task` sink, [plugin-obsidian#4](https://github.com/horae-dev/plugin-obsidian/issues/4)), see [What each source needs](#what-each-source-needs) for what is released. The guard rules for the note's text are still pending ([horae-dev/horae#128](https://github.com/horae-dev/horae/issues/128), known holes below). The pipeline and the skill pass their checks against the core's `main`, with stand-ins of the plugins in their real shapes (plugin-obsidian's data is the output of its own code). The wording of the note has **not been judged by the maintainer yet**: the golden answers are hand-written, not recorded from a model (see [Wording quality](#wording-quality)).
 
 ## What it does
 
@@ -66,9 +66,10 @@ steps:
       # A calendar that fails gives the others' events (`complete: false`) instead of failing
       # the source: a partial brief beats no brief, and the note says the list is incomplete.
       - calendar.events: { start: "{{date}}", days: 2, timezone: "{{timezone}}", partial: true }
-      # plugin-obsidian#4 (in progress): open tasks, with `source_fingerprint` on the tasks
-      # Horae created from another source.
-      - obsidian.open_tasks: {}
+      # Open tasks of the vault (plugin-obsidian), by due date, with `source_fingerprint` on
+      # the tasks Horae created from another source. `limit` bounds what the model sees; the
+      # source says how many it left out (`more`) and the note then says the list is incomplete.
+      - obsidian.open_tasks: { limit: 100 }
       # Reviews and mentions are due the day they are collected; an assignment is due on its
       # milestone's date. `orgs` keeps only the owners `link_prefix` covers: an item of
       # another owner would be unrouted and fail the run.
@@ -88,17 +89,18 @@ steps:
   # writes only the owned block of today's assistant note.
   - act:
       - obsidian.write_note: { path: "Daily/{{date}}.assistant.md", mode: replace-owned }
-      # The github sources' tasks (sink of plugin-obsidian#4). A task's link is routed only
+      # The github sources' tasks (plugin-obsidian's task sink, which appends them to its
+      # owned `Tasks.assistant.md`; `note:` changes the file). A task's link is routed only
       # under a trusted `link_prefix`; without this entry, or with a link outside its prefix,
       # the task is unrouted and the run fails.
-      - obsidian.write_tasks: { mode: tasks, link_prefix: "https://github.com/Acme-Org/" }
+      - obsidian.write_task: { mode: tasks, link_prefix: "https://github.com/Acme-Org/" }
 ```
 
 - `{{date}}` and `{{timezone}}` come from the run (the trigger's time zone, else `horae.yaml`'s), so the day is the run's and a replay sees the same one.
 - **`Acme-Org` is a placeholder**: replace it with your GitHub owner, in its canonical case (as it appears in github.com URLs), in the three `orgs` and in `link_prefix`. For several owners, list them all in `orgs` and add one tasks entry per owner, each with its own `link_prefix`; the prefixes must not overlap (`https://github.com/Acme-Org/` and `https://github.com/Other-Org/` are fine).
 - **Unchanged input costs nothing**: a second run on the same data reuses the cached answer (no LLM call).
 - **Budget**: at most US$0.15 and 4,000 output tokens per run. With a priced alias, `max_tokens` is the `tokens_out` lowered so that the input plus the output fit the `usd`; at a Sonnet-class price a busy morning still gets the full 4,000 (tested). Each GitHub kind reads at most 20 items.
-- The GitHub sources propose one `task.create` per item, with the item's link (plugin-github 0.2.0). The `obsidian.write_tasks` entry applies them; its trusted `link_prefix` is the only place their links may point to, and an intent no entry takes fails the run. Drop the three `github.*` sources and that entry together if you don't use GitHub.
+- The GitHub sources propose one `task.create` per item, with the item's link (plugin-github 0.2.0). The `obsidian.write_task` entry applies them (it appends them to plugin-obsidian's own `Tasks.assistant.md`); its trusted `link_prefix` is the only place their links may point to, and an intent no entry takes fails the run. Drop the three `github.*` sources and that entry together if you don't use GitHub.
 
 ### When there is no note
 
@@ -148,9 +150,9 @@ The note is written only when the whole run succeeds. A missing note (or one sti
 |---|---|---|---|
 | `calendar.events` | [plugin-calendar](https://github.com/horae-dev/plugin-calendar) (`main`) | secret `CALENDAR_ICS_URLS` (your ICS links); hosts `calendar.google.com`, `calendar.proton.me` | merged ([plugin-calendar#6](https://github.com/horae-dev/plugin-calendar/pull/6)), not released |
 | `github.review_requests`, `github.assigned`, `github.mentions` | [plugin-github](https://github.com/horae-dev/plugin-github) 0.2.0 (tasks with links; needs a core at horae-dev/horae@0f5531a or later) | secret `GITHUB_TOKEN` (fine-grained, read-only: pull requests, issues, metadata); host `api.github.com` | on `main` |
-| `obsidian.open_tasks` | [plugin-obsidian](https://github.com/horae-dev/plugin-obsidian) | the vault as `paths.read` in `horae.lock` | **in progress** ([plugin-obsidian#4](https://github.com/horae-dev/plugin-obsidian/issues/4)); the pack cannot run until it lands |
-| `obsidian.write_note` (act) | plugin-obsidian 0.1.0 | the vault as `paths.write` in `horae.lock`; intent `note.replace_owned_block` | released |
-| `obsidian.write_tasks` (act) | plugin-obsidian | intents `task.create`, `task.update_status` | **in progress** (plugin-obsidian#4, no pull request yet); the entry name is this pack's assumption, to align when #4 names its sink |
+| `obsidian.open_tasks` | [plugin-obsidian](https://github.com/horae-dev/plugin-obsidian) `main` (#4) | the vault as the single `paths.write` entry in `horae.lock` (the plugin takes one vault path, read or write) | merged ([plugin-obsidian#8](https://github.com/horae-dev/plugin-obsidian/pull/8)), not released |
+| `obsidian.write_note` (act) | plugin-obsidian | the vault as `paths.write` in `horae.lock`; intent `note.replace_owned_block` | merged, not released |
+| `obsidian.write_task` (act, `mode: tasks`) | plugin-obsidian `main` (#4) | the same vault path; intents `task.create`, `task.update_status`; appends to the owned `Tasks.assistant.md` (`note:` to change it) | merged ([plugin-obsidian#8](https://github.com/horae-dev/plugin-obsidian/pull/8)), not released; `link_prefix` is checked by the core, the plugin ignores it |
 
 A source you don't have must be removed from your copy of the pipeline (an unknown tool fails the run before anything is called). The skill copes with any subset: what is missing is simply not in the note.
 
@@ -161,7 +163,7 @@ The tests prove the pipeline runs end to end and that every golden answer is sch
 - the golden answers in `evals/recorded/anthropic/` were **written by hand** to show the intended note, not produced by a model (their `model` is `claude-fixture-1`). The cases check properties (how many items are ranked, references, words the note contains), not exact text, so a real model's answer can pass them. Record real ones for the mornings with a live eval (it spends money, asks first):
 
   ```sh
-  for case in busy-morning empty-day hostile-title partial-sources second-day; do
+  for case in busy-morning empty-day hostile-title partial-sources second-day snoozed-and-cut; do
     horae eval daily-brief/rank-and-word -i <instance> --alias default --plugin-dir . \
       --case "$case" --live --record --max-usd 0.50
   done
@@ -178,7 +180,7 @@ Decisions taken with the maintainer ("go with what you think is good for the pro
 
 1. **GitHub tasks carry links, so they are routed by owner.** plugin-github 0.2.0 sends each task's `link`; the core routes a linked task only to a `mode: tasks` entry whose trusted `link_prefix` covers it. The pipeline uses one owner, `Acme-Org` (a placeholder, canonical case), in `link_prefix: "https://github.com/Acme-Org/"` and in `orgs: [Acme-Org]` on all three GitHub calls, so an item of another owner is filtered out at the source instead of failing the run. More owners: one tasks entry per owner, with disjoint prefixes.
 2. **Obeyed injections.** The core fix is horae-dev/horae#128 (guard rules for Tasks lines, wikilinks and markers, and a per-skill `links: none`). Here: the prompt forbids that text outright, `skill.yaml` has a TODO for `links: none`, and a golden case per payload (embed, link, checkbox, wikilink, plain marker) records what the guard does today: `violation` for the embed, `pass` for the other four (known holes, documented in each case). The end-to-end tests do the same, with a strict `xfail` that turns red when #128 closes the holes.
-3. **Sources that don't exist yet.** The pack needs plugin-obsidian's `obsidian.open_tasks` and its `task.create` sink (plugin-obsidian#4) and cannot run until they land. The end-to-end stand-ins mirror the real shapes: `Task.to_json()` of plugin-obsidian `main` (generated with its parser) plus #4's `source_fingerprint`, plugin-github 0.2.0's data and `task.create` (with `link`), plugin-calendar `main`'s `calendar.events`. The sink is named `obsidian.write_tasks`; #4 has no pull request yet to take a name from.
+3. **Stand-ins of the plugins.** The end-to-end tests do not start the plugins; the stand-ins mirror the real shapes: plugin-obsidian `main`'s `obsidian.open_tasks` output (the golden cases' data was **generated by running its code** on a vault of the cases' task lines, with horae-sdk 0.3 and the Horae tasks written by its `task.create` sink), plugin-github 0.2.0's data and `task.create` (with `link`), plugin-calendar `main`'s `calendar.events`. The tasks sink is `obsidian.write_task`. The pack asks for `limit: 100` tasks; the source's `more`, `output_cut`, `withheld` and `hidden` are viewed, and the note says the tasks list is incomplete when any of them reports tasks left out (`snoozed-and-cut` case). Snoozed tasks (a `⏰` reminder in the future) are left out unless due today; `edited` is not viewed.
 4. **No duplicate GitHub items from day two.** The tasks created from GitHub items come back as open tasks with a `source_fingerprint` starting with `github:`; those are left out, since GitHub lists the item itself (`second-day` case). The input view selects fields, it cannot filter by value, so the view shows `source_fingerprint` and the prompt leaves those tasks out. A deterministic filter needs a view filter or a transform in the core.
 5. **Budget.** `usd: 0.15`, `tokens_out: 4000`, `max_items: 20` per GitHub kind; a test with a Sonnet-class price checks that a busy morning still gets at least 1,500 output tokens (it gets 4,000).
 6. **Shorter lines.** A GitHub item is named by its repository without the owner (`api #7`).

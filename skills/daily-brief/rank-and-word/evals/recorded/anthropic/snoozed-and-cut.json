@@ -1,0 +1,46 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "One task is due today and one tomorrow.\nThe task list is incomplete.\n\n## Now\n\n- Send the tax form\n\n## Tomorrow\n\n- Water the plants\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "index": 0,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "tomorrow"
+      }
+    ],
+    "summary": "One task is due today and one tomorrow."
+  },
+  "request": {
+    "input_sha256": "99d56d5d6de79189fd8910bc0e7f20869312efa039e156629fd66db3c4260a8e",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 1900,
+    "tokens_out": 90,
+    "usd": 0.0
+  }
+}

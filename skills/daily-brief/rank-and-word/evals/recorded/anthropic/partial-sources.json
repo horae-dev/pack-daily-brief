@@ -38,13 +38,13 @@
     "summary": "One thing is overdue, a stand-up and a review today."
   },
   "request": {
-    "input_sha256": "e484275c73ccdb71bfe65be483a92a0108c5a811a58e22a9e25f71e30f77715f",
+    "input_sha256": "f0b223f0ac34049a1ee4ecb045377cf2ff605653271e07334fe925d59894c353",
     "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
-    "system_sha256": "d8728bcba525b89495f0490bfd1ad777c97222c68a5862f4d5f1dae6b33453ca"
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
   },
   "schema_version": 1,
   "skill": "daily-brief/rank-and-word",
-  "skill_digest": "f49d4730855529586c8b321870e11af9afb9146d43824a4bcb3ff28e49cebfb2",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
   "skill_version": "0.1.0",
   "stop_reason": "end_turn",
   "usage": {

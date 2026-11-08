@@ -77,13 +77,13 @@
         "when": "tomorrow"
       },
       {
-        "index": 3,
+        "index": 5,
         "kind": "task",
         "source": "obsidian.open_tasks",
         "when": "tomorrow"
       },
       {
-        "index": 4,
+        "index": 3,
         "kind": "task",
         "source": "obsidian.open_tasks",
         "when": "later"
@@ -98,13 +98,13 @@
     "summary": "Two things are overdue, a conference and three events today, planning tomorrow."
   },
   "request": {
-    "input_sha256": "5b40bc8acbb82c10d5c4b5e77210cad55cabb1cf4cb487b62d4c29fa0e61f090",
+    "input_sha256": "f8ca17778153c32fb83b533bb76120aa5c98a4fb68b65868ca5cc8534c1e89dd",
     "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
-    "system_sha256": "d8728bcba525b89495f0490bfd1ad777c97222c68a5862f4d5f1dae6b33453ca"
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
   },
   "schema_version": 1,
   "skill": "daily-brief/rank-and-word",
-  "skill_digest": "f49d4730855529586c8b321870e11af9afb9146d43824a4bcb3ff28e49cebfb2",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
   "skill_version": "0.1.0",
   "stop_reason": "end_turn",
   "usage": {

@@ -12,11 +12,11 @@ What is a fixture:
 - the sources: the core's in-memory `FixturePlugins` (`horae.engine.testing`) stand in for
   plugin-calendar, plugin-obsidian and plugin-github under their own tool names, serving the
   `data` of a golden case's input, in the real shapes (plugin-calendar main, Task.to_json of
-  plugin-obsidian main plus the planned `source_fingerprint`, plugin-github 0.2.0). The
+  plugin-obsidian main's `open_tasks`, generated with its code, plugin-github 0.2.0). The
   github ones apply their `orgs` filter, as the real search does, and propose one
   `task.create` per item with its link, as plugin-github 0.2.0 does. Their manifests copy the
-  real ones where they exist and the planned ones elsewhere (`obsidian.open_tasks` and the
-  tasks sink `obsidian.write_tasks`, plugin-obsidian#4);
+  real ones (plugin-obsidian main's `obsidian.open_tasks` and its tasks sink
+  `obsidian.write_task`);
 - the model: the provider backend's `send` returns the golden case's recorded answer
   instead of calling the API (as `horae eval` does offline); nothing leaves the host;
 - the tasks sink: the core's in-memory `FixtureSink`.
@@ -56,9 +56,9 @@ BEGIN, END = "<!-- horae:begin daily-brief -->", "<!-- horae:end daily-brief -->
 OWNER = "Acme-Org"
 
 # Stand-ins for the source and sink plugins, by namespace: github's provides and permissions
-# are plugin-github 0.2.0's, calendar's plugin-calendar main's; obsidian's sink is
-# plugin-obsidian 0.1.0's `write_note`, plus the planned `open_tasks` source and tasks sink
-# (horae-dev/plugin-obsidian#4).
+# are plugin-github 0.2.0's, calendar's plugin-calendar main's; obsidian's is
+# plugin-obsidian main's (`plugin.yaml`: the `open_tasks` source, the `write_note` and
+# `write_task` sinks).
 STAND_INS: dict[str, dict[str, Any]] = {
     "calendar": {
         "version": "0.1.0",
@@ -72,7 +72,7 @@ STAND_INS: dict[str, dict[str, Any]] = {
         "version": "0.2.0",
         "provides": {
             "sources": ["obsidian.open_tasks"],
-            "sinks": ["obsidian.write_note", "obsidian.write_tasks"],
+            "sinks": ["obsidian.write_note", "obsidian.write_task"],
         },
         "permissions": {
             "intents": [
@@ -275,7 +275,7 @@ class Morning:
         (vault / "Daily").mkdir(exist_ok=True)
         self.note = vault / NOTE.format(day=self.day)
         sinks = StaticSinks(
-            {"obsidian.write_note": LocalFileSink(vault), "obsidian.write_tasks": self.tasks}
+            {"obsidian.write_note": LocalFileSink(vault), "obsidian.write_task": self.tasks}
         )
         ports = Ports(
             self.plugins,

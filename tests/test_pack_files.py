@@ -90,7 +90,7 @@ def test_the_note_entry_binds_todays_assistant_note() -> None:
     assert "note.replace_owned_block" in ACT_MODES[params["mode"]]
     # The github sources' task.create intents need a tasks entry, else they are unrouted and
     # fail the run; their links are routed only under its trusted link_prefix.
-    assert entries["obsidian.write_tasks"] == {
+    assert entries["obsidian.write_task"] == {
         "mode": "tasks",
         "link_prefix": f"https://github.com/{OWNER}/",
     }
@@ -142,6 +142,17 @@ def test_the_input_view_is_minimal() -> None:
     # Only a task's source fingerprint, to leave out the tasks copied from GitHub items.
     assert {p for p in paths if "fingerprint" in p} == {"[].data.tasks[].source_fingerprint"}
     assert "[].data.tasks[].start" in paths
+    # What the tasks source left out (counts, never keys, notes or lines), and the snoozes.
+    for path in (
+        "[].data.more",
+        "[].data.output_cut",
+        "[].data.withheld[].reason",
+        "[].data.hidden[].reason",
+        "[].data.tasks[].snoozed",
+        "[].data.tasks[].snoozed_until",
+    ):
+        assert path in paths, path
+    assert "[].data.tasks[].edited" not in paths
 
 
 def test_free_text_is_classified_for_deidentification() -> None:

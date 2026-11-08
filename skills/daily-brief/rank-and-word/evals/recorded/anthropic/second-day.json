@@ -23,7 +23,7 @@
         "when": "today"
       },
       {
-        "index": 0,
+        "index": 2,
         "kind": "task",
         "source": "obsidian.open_tasks",
         "when": "today"
@@ -32,13 +32,13 @@
     "summary": "One thing is overdue, one review and the train tickets today."
   },
   "request": {
-    "input_sha256": "22e27fe992e392f31a8f3d5bb957c7c93de8f0601fa8fe5098d40eb3cdcbf64c",
+    "input_sha256": "3779f97fd9d74eb32bd51c1521615709c8c074fd42d3febde0bb43fc6ff970b4",
     "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
-    "system_sha256": "d8728bcba525b89495f0490bfd1ad777c97222c68a5862f4d5f1dae6b33453ca"
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
   },
   "schema_version": 1,
   "skill": "daily-brief/rank-and-word",
-  "skill_digest": "f49d4730855529586c8b321870e11af9afb9146d43824a4bcb3ff28e49cebfb2",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
   "skill_version": "0.1.0",
   "stop_reason": "end_turn",
   "usage": {

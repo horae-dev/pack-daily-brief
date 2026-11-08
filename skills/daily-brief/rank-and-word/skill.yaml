@@ -7,9 +7,16 @@
 # a source that is not installed simply contributes nothing.
 #
 # - `data.partial`, `data.truncated`, `data.complete`, `data.errors`: whether a source's list
-#   is complete (calendar: `complete`, `truncated`; github: `partial`, `truncated`, `errors`),
-#   so the note can say when it is not.
-# - `data.tasks[].source_fingerprint` (plugin-obsidian#4): set on a task Horae created from
+#   is complete (calendar: `complete`, `truncated`; github: `partial`, `truncated`, `errors`;
+#   obsidian.open_tasks: `complete`, `truncated`), so the note can say when it is not.
+#   obsidian.open_tasks also says what it left out: `more` (tasks past its `limit`),
+#   `output_cut`, and one entry per task it `withheld` (a duplicate or not known unique key)
+#   or `hidden` (Horae's own output it could not verify); only the reason of each is viewed,
+#   as a count, never the task's key, note or line.
+# - `data.tasks[].snoozed`, `data.tasks[].snoozed_until`: a task snoozed until a later moment
+#   (a `⏰` reminder in the future); the prompt leaves it out unless it is due today.
+#   `edited` (a Horae task edited in Obsidian) is not viewed: it changes nothing in the note.
+# - `data.tasks[].source_fingerprint` (obsidian.open_tasks): set on a task Horae created from
 #   another source. The view cannot filter by value, so the prompt leaves out the tasks whose
 #   fingerprint starts with `github:` (the GitHub item itself is listed by its source).
 #
@@ -32,6 +39,10 @@ input_view:
   "[].data.truncated":
   "[].data.complete":
   "[].data.errors":
+  "[].data.more":
+  "[].data.output_cut":
+  "[].data.withheld[].reason":
+  "[].data.hidden[].reason":
   "[].data.items[].repo":
   "[].data.items[].number":
   "[].data.items[].title": { class: free_text }
@@ -41,6 +52,8 @@ input_view:
   "[].data.tasks[].scheduled":
   "[].data.tasks[].start":
   "[].data.tasks[].priority":
+  "[].data.tasks[].snoozed":
+  "[].data.tasks[].snoozed_until":
   "[].data.tasks[].source_fingerprint":
   "[].data.events[].title": { class: free_text }
   "[].data.events[].start":

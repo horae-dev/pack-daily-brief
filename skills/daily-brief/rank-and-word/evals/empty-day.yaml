@@ -17,9 +17,24 @@ input:
         - {"name": "calendar-1", "ok": true, "complete": true, "events": 0, "skipped": 0, "truncated": 0, "warnings": 0}
       events: []
   - source: obsidian.open_tasks
-    params: {}
+    params: {"limit": 100}
     data:
       tasks: []
+      more: 0
+      output_cut: false
+      open_statuses: " /"
+      withheld: []
+      withheld_more: 0
+      hidden: []
+      hidden_more: 0
+      horae_output: 0
+      edited_horae_tasks: []
+      edited_more: 0
+      not_open_statuses: {}
+      complete: true
+      truncated: false
+      skipped: []
+      index: "ok"
   - source: github.review_requests
     params: {"today": "2026-11-14", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
     data:
