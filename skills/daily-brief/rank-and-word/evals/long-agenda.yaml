@@ -1,0 +1,122 @@
+# Synthetic data. A Monday with more to do than the note can hold: 6 events, 20 open tasks
+# (one not started, one snoozed) and 7 GitHub items, 31 listable in all. The schema allows 20
+# `ranked` items and a note of 2,500 characters, so the answer must keep the most urgent 20
+# (3 overdue, 4 events and 3 reviews and 3 tasks and 2 mentions today, tomorrow's events and
+# tasks) and leave the rest out. The input is in the sources' real shapes, like busy-morning's.
+schema_version: 1
+description: More listable items than the output allows keeps the 20 most urgent.
+budget: { usd: 0.15, tokens_out: 4000 }
+targets:
+  note.replace_owned_block: Daily/2026-11-16.assistant.md
+input:
+  - source: calendar.events
+    params: {"start": "2026-11-16", "days": 2, "timezone": "Europe/Paris", "partial": true}
+    data:
+      window: {"start": "2026-11-16T00:00:00+01:00", "end": "2026-11-18T00:00:00+01:00", "timezone": "Europe/Paris", "days": 2}
+      complete: true
+      truncated: 0
+      calendars:
+        - {"name": "calendar-1", "ok": true, "complete": true, "events": 6, "skipped": 0, "truncated": 0, "warnings": 0}
+      events:
+        - {"id": "calendar:ev0-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Offsite week", "start": "2026-11-16", "end": "2026-11-21", "all_day": true, "location": null, "description": null, "status": "confirmed", "recurring": false}
+        - {"id": "calendar:ev1-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Sprint review", "start": "2026-11-16T09:00:00+01:00", "end": "2026-11-16T10:00:00+01:00", "all_day": false, "location": null, "description": null, "status": "confirmed", "recurring": false}
+        - {"id": "calendar:ev2-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Customer call", "start": "2026-11-16T11:30:00+01:00", "end": "2026-11-16T12:00:00+01:00", "all_day": false, "location": null, "description": null, "status": "confirmed", "recurring": false}
+        - {"id": "calendar:ev3-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Design critique", "start": "2026-11-16T15:00:00+01:00", "end": "2026-11-16T16:00:00+01:00", "all_day": false, "location": null, "description": null, "status": "tentative", "recurring": false}
+        - {"id": "calendar:ev4-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Release sync", "start": "2026-11-17T09:30:00+01:00", "end": "2026-11-17T10:00:00+01:00", "all_day": false, "location": null, "description": null, "status": "confirmed", "recurring": false}
+        - {"id": "calendar:ev5-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "1:1 with Sam", "start": "2026-11-17T14:00:00+01:00", "end": "2026-11-17T14:30:00+01:00", "all_day": false, "location": null, "description": null, "status": "confirmed", "recurring": false}
+  - source: obsidian.open_tasks
+    params: {"limit": 100}
+    data:
+      tasks:
+        - {"key": "obsidian:task:Inbox.md:a1d7d5a276757e33:0", "source_fingerprint": null, "description": "Pay the parking fine", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 1, "line_sha256": "a1d7d5a276757e335299e8f24888962c6b3638676788a9bfae3448a2317bf780", "heading": null, "due": "2026-11-10", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:4029f91971d5a06e:0", "source_fingerprint": null, "description": "Update the passport photo", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 2, "line_sha256": "4029f91971d5a06e5cb498ad62524f357e124fd2b3cec305693c60fe19541905", "heading": null, "due": "2026-11-13", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:fe1f7d0d1a6939fb:0", "source_fingerprint": null, "description": "Prepare the demo script", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 3, "line_sha256": "fe1f7d0d1a6939fb3e8a09a41d8aa3803f0ffacb369ffea7c9ef219e8dd8e4c4", "heading": null, "due": "2026-11-16", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": "high", "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:cd036a06bbe34a55:0", "source_fingerprint": null, "description": "Reply to the recruiter", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 4, "line_sha256": "cd036a06bbe34a55d896e18738407f7f22d5c9d1049296ce6d26438f97ca38e7", "heading": null, "due": "2026-11-16", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:bf15f4057854be0d:0", "source_fingerprint": null, "description": "Tidy the shared drive", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 5, "line_sha256": "bf15f4057854be0d662ca968c6098897258fc16d60de0f76ddabdfaa684bd49b", "heading": null, "due": null, "scheduled": "2026-11-14", "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:1945f493db7c6558:0", "source_fingerprint": null, "description": "Order the team gifts", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 6, "line_sha256": "1945f493db7c6558292ae9decd27ed68e510f19d02fa7eebe9b2e0c491cbe44d", "heading": null, "due": "2026-11-17", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:a599cb27f258e771:0", "source_fingerprint": null, "description": "Book the venue", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 7, "line_sha256": "a599cb27f258e7711632870ca28f4a1209c720a80954c4cd5d4582d5845aa2f6", "heading": null, "due": null, "scheduled": "2026-11-17", "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:99606d3a58ce24f6:0", "source_fingerprint": null, "description": "Plan the retrospective", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 8, "line_sha256": "99606d3a58ce24f6829a8a7088a9f4746382bcb2fe2857a6ba186ee2a19dd38e", "heading": null, "due": "2026-11-23", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:0bd6c10c61152053:0", "source_fingerprint": null, "description": "Renew the domain name", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 9, "line_sha256": "0bd6c10c6115205342f3a331e3b8eabe686c969e629b756311b2139c78fc37e8", "heading": null, "due": "2026-11-30", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:ae7a5b3473875f4e:0", "source_fingerprint": null, "description": "Write the quarterly report", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 10, "line_sha256": "ae7a5b3473875f4e7015719b9b4929fca81d7b04a55db813d689e36cd0f47398", "heading": null, "due": "2026-12-05", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:d7c49f72754ac375:0", "source_fingerprint": null, "description": "Sort the old photos", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 11, "line_sha256": "d7c49f72754ac375daefd371607c4edc74c16f5f9cab4803fc8e9da43491a4fc", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:2b1106209adef9d0:0", "source_fingerprint": null, "description": "Read the security brief", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 12, "line_sha256": "2b1106209adef9d0edb0d6abecc52c90df3f3f023a284d90cb7d7822dc747355", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:b52cc829a1624d6c:0", "source_fingerprint": null, "description": "Learn the new editor shortcuts", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 13, "line_sha256": "b52cc829a1624d6ce0e2f0fa5ff1271c4e3f9e0da51ec2bd2c2abdab66f66f0f", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:2c3cb69acd6401e3:0", "source_fingerprint": null, "description": "Prepare the holiday cards", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 14, "line_sha256": "2c3cb69acd6401e3b271b6edb33f208ea050e80287703bf546aed3ca3c19e181", "heading": null, "due": "2026-12-20", "scheduled": null, "start": "2026-12-01", "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:4e9e5e96b4622879:0", "source_fingerprint": null, "description": "Call the plumber", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 15, "line_sha256": "4e9e5e96b4622879f9ef8682be69e72630879983220944df6d64ddf9deabd318", "heading": null, "due": "2026-11-18", "scheduled": null, "start": null, "reminder": null, "snoozed_until": "2026-11-20", "snoozed": true, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:416c6337e6720dd4:0", "source_fingerprint": null, "description": "Clean the spare room", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 16, "line_sha256": "416c6337e6720dd4bf396e219324906905a26a1f4faff12097e9cfaf70deee70", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:f59406d9aa23e68e:0", "source_fingerprint": null, "description": "Back up the laptop", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 17, "line_sha256": "f59406d9aa23e68e3f1091c6c6981430ca4fba879977987f8367339b58656de2", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:19e786596acfdefe:0", "source_fingerprint": null, "description": "Review the reading list", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 18, "line_sha256": "19e786596acfdefe7c3dd4de8348434eefe372836f6b5d47a446cb8c4d9bc268", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:3df2e283a1d1b2f1:0", "source_fingerprint": null, "description": "Choose the conference talks", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 19, "line_sha256": "3df2e283a1d1b2f19f0ccfe5e5efe7381b413f12f473961cd5c8e1febbde0f0d", "heading": null, "due": "2026-12-12", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+        - {"key": "obsidian:task:Inbox.md:7e844bf667b67c7c:0", "source_fingerprint": null, "description": "Check the insurance renewal", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 20, "line_sha256": "7e844bf667b67c7c44780ff5d90e73b65fe792cd503444df4902b7367bcf2305", "heading": null, "due": null, "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+      more: 0
+      output_cut: false
+      open_statuses: " /"
+      withheld: []
+      withheld_more: 0
+      hidden: []
+      hidden_more: 0
+      horae_output: 0
+      edited_horae_tasks: []
+      edited_more: 0
+      not_open_statuses: {}
+      complete: true
+      truncated: false
+      skipped: []
+      index: "ok"
+  - source: github.review_requests
+    params: {"today": "2026-11-16", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
+    data:
+      kind: "review_requested"
+      day: "2026-11-16"
+      items:
+        - {"fingerprint": "github:pr:SYNTH0021", "type": "pr", "repo": "Acme-Org/api", "number": 21, "title": "Add rate limiting to the export", "url": "https://github.com/Acme-Org/api/pull/21", "due": "2026-11-16"}
+        - {"fingerprint": "github:pr:SYNTH0008", "type": "pr", "repo": "Acme-Org/web", "number": 8, "title": "Fix the sidebar overflow", "url": "https://github.com/Acme-Org/web/pull/8", "due": "2026-11-16"}
+        - {"fingerprint": "github:pr:SYNTH0015", "type": "pr", "repo": "Acme-Org/docs", "number": 15, "title": "Rewrite the setup guide", "url": "https://github.com/Acme-Org/docs/pull/15", "due": "2026-11-16"}
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.assigned
+    params: {"today": "2026-11-16", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true}
+    data:
+      kind: "assigned"
+      day: "2026-11-16"
+      items:
+        - {"fingerprint": "github:issue:SYNTH0040", "type": "issue", "repo": "Acme-Org/widgets", "number": 40, "title": "Widgets lose focus after a resize", "url": "https://github.com/Acme-Org/widgets/issues/40", "due": "2026-11-11"}
+        - {"fingerprint": "github:issue:SYNTH0030", "type": "issue", "repo": "Acme-Org/api", "number": 30, "title": "Document the retry policy", "url": "https://github.com/Acme-Org/api/issues/30", "due": null}
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.mentions
+    params: {"today": "2026-11-16", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true, "due_in_days": 0}
+    data:
+      kind: "mentioned"
+      day: "2026-11-16"
+      items:
+        - {"fingerprint": "github:issue:SYNTH0109", "type": "issue", "repo": "Acme-Org/web", "number": 9, "title": "Which browsers do we support", "url": "https://github.com/Acme-Org/web/issues/9", "due": "2026-11-16"}
+        - {"fingerprint": "github:issue:SYNTH0112", "type": "issue", "repo": "Acme-Org/docs", "number": 12, "title": "Typo in the changelog", "url": "https://github.com/Acme-Org/docs/issues/12", "due": "2026-11-16"}
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+expect:
+  schema_valid: true
+  assertions:
+    # More items than the note can list (31 listable, 20 allowed): the most urgent 20 are kept.
+    - { pointer: /output/ranked, length: 20 }
+    - { pointer: /output/ranked/0/when, equals: overdue }
+    - { pointer: /output/ranked/2/when, equals: overdue }
+    - { pointer: /output/ranked, contains: { kind: task, when: overdue, source: obsidian.open_tasks, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: issue, when: overdue, source: github.assigned, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: event, when: today, source: calendar.events, index: 3 } }
+    - { pointer: /output/ranked, contains: { kind: review, when: today, source: github.review_requests, index: 2 } }
+    - { pointer: /output/ranked, contains: { kind: task, when: today, source: obsidian.open_tasks, index: 2 } }
+    - { pointer: /output/ranked, contains: { kind: event, when: tomorrow, source: calendar.events, index: 5 } }
+    - { pointer: /intents/0/block, equals: daily-brief }
+    - { pointer: /intents/0/content, contains: "## Now" }
+    - { pointer: /intents/0/content, contains: "## Tomorrow" }
+    - { pointer: /intents/0/content, contains: "## Later" }
+    - { pointer: /intents/0/content, contains: tentative }
+  intent_counts: { note.replace_owned_block: 1 }
+  guard: pass

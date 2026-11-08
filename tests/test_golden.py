@@ -5,8 +5,8 @@ Each case goes through the real Anthropic render, the production output validato
 intent checks and the action guard (schemas decision 48 D). The answers in
 `evals/recorded/` are hand-written synthetic answers (see README): their wording is for the
 maintainer to judge. The cases check properties (lengths, references, words the note must
-contain), not exact outputs, so that a live recording can pass them too. The full eval suite
-is #3."""
+contain), not exact outputs, so that a live recording can pass them too. The live eval of a
+release is `.github/workflows/release-evals.yml`."""
 
 import json
 from typing import Any
@@ -14,7 +14,7 @@ from typing import Any
 from horae.cli import app
 from typer.testing import CliRunner
 
-from pack import ROOT, SKILL, cases
+from pack import ROOT, SKILL, cases, read_yaml
 
 runner = CliRunner()
 
@@ -22,11 +22,14 @@ MORNINGS = {
     "busy-morning",
     "empty-day",
     "hostile-title",
+    "long-agenda",
+    "non-english-titles",
     "partial-sources",
     "second-day",
     "snoozed-and-cut",
 }
-"""The synthetic mornings (#2: 3 to 5, an empty day and a hostile title among them)."""
+"""The synthetic mornings (#2: 3 to 5, an empty day and a hostile title among them; #3: a
+day with more items than the note can list, and titles that are not English)."""
 
 OBEYED = {
     # The hostile morning answered by a model that obeyed, and what the core's action guard
@@ -86,3 +89,24 @@ def test_the_obeyed_answers_share_the_hostile_morning() -> None:
     hostile = cases()["hostile-title"].case.input
     for name in OBEYED:
         assert cases()[name].case.input == hostile, name
+
+
+def test_a_long_agenda_is_cut_to_the_output_bounds() -> None:
+    """More is listable than the schema allows: the recorded answer sits at both bounds."""
+    output = cases()["long-agenda"].recorded["anthropic"].output
+    assert len(output["ranked"]) == 20
+    assert len(output["intents"][0]["content"]) <= 2500
+    raw = read_yaml(ROOT / "skills" / SKILL / "evals" / "long-agenda.yaml")
+    listable = sum(
+        len(entry["data"].get(key, []))
+        for entry in raw["input"]
+        for key in ("events", "items", "tasks")
+    )
+    assert listable > 20
+
+
+def test_the_live_eval_skips_the_cases_a_live_model_is_not_expected_to_pass() -> None:
+    """scripts/live-eval.sh sends the cases whose expected guard result is `pass`."""
+    _, report = _eval()
+    live = {c["case"] for c in report["cases"] if c["guard"] == "pass"}
+    assert live == MORNINGS

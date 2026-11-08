@@ -163,7 +163,8 @@ The tests prove the pipeline runs end to end and that every golden answer is sch
 - the golden answers in `evals/recorded/anthropic/` were **written by hand** to show the intended note, not produced by a model (their `model` is `claude-fixture-1`). The cases check properties (how many items are ranked, references, words the note contains), not exact text, so a real model's answer can pass them. Record real ones for the mornings with a live eval (it spends money, asks first):
 
   ```sh
-  for case in busy-morning empty-day hostile-title partial-sources second-day snoozed-and-cut; do
+  for case in busy-morning empty-day hostile-title long-agenda non-english-titles \
+      partial-sources second-day snoozed-and-cut; do
     horae eval daily-brief/rank-and-word -i <instance> --alias default --plugin-dir . \
       --case "$case" --live --record --max-usd 0.50
   done
@@ -172,7 +173,19 @@ The tests prove the pipeline runs end to end and that every golden answer is sch
   (only answers that pass their case are written), then read each note: ranking, tone, length, what was left out. Don't record the `injected-*` cases: their answers are a model that **obeyed** an injection, written by hand on purpose;
 - prompt and schema changes are judged the same way: before and after notes of every case in the pull request.
 
-The full eval suite (more mornings, wording checks, per-backend recordings) is [#3](https://github.com/horae-dev/pack-daily-brief/issues/3).
+## Evals
+
+- **Offline, on every pull request and push to `main`** (`ci.yml`, job *Golden cases*): `horae eval --json` over every case. No network, no secret, no cost. The job fails on a failed or errored case, on a stale recording (`horae eval` itself only warns) and when no case ran. The 13 cases are 8 synthetic mornings (an empty day, a busy one, a day with more items than the note can list, non-English titles, incomplete sources, a hostile one) and 5 where a model that **obeyed** an injection is refused by the action guard. They assert properties only (counts, references, words), never exact text.
+- **Live, on a release tag `v*`** (`release-evals.yml`): `scripts/live-eval.sh` sends each case that is expected to pass the guard (not the `injected-*` ones) once to the real model with `horae eval --live`, under one spend cap (`EVAL_MAX_USD`, enforced by the core's `--max-usd`: a case whose worst case does not fit what is left is refused). The merged JSON report is attached to the GitHub release as `live-eval-report-<tag>.json`, also when a case failed. A tag push creates no release: the workflow makes a **draft** one when there is none, for you to publish. Never runs on a pull request.
+
+**What the maintainer must create** (the repository's settings are not touched by the workflows):
+
+1. An environment named **`evals`** (Settings > Environments) with a **required reviewer**, and deployment tags restricted to `v*`.
+2. In that environment, the secret **`ANTHROPIC_API_KEY`** (an environment secret, not a repository one; a key with its own spend limit is best).
+3. Optionally edit `EVAL_MODEL`, `EVAL_PRICE_IN`, `EVAL_PRICE_OUT` (US dollars per million tokens) and `EVAL_MAX_USD` in `release-evals.yml`.
+4. Optionally make *CI OK* a required status check on `main`.
+
+To run it by hand: `ANTHROPIC_API_KEY=... EVAL_MODEL=... EVAL_PRICE_IN=3 EVAL_PRICE_OUT=15 EVAL_MAX_USD=1 EVAL_OUT=report.json RUNNER_TEMP=$(mktemp -d) scripts/live-eval.sh`.
 
 ## Design
 
@@ -219,6 +232,7 @@ uv run horae eval daily-brief/rank-and-word --plugin-dir . --json   # summary.st
 
 - `tests/test_pack_files.py`: the manifest, pipeline and skill through the core's contracts and loaders (the pipeline also loaded into an instance as `horae run` reads it), the output schema accepted by every backend's structured output, and the pipeline's parameters (owner, bounds, due offsets, `partial`).
 - `tests/test_golden.py`: `horae eval --json` offline over every case (real render, production validator, action guard): all pass, none stale, and the guard's result on each obeyed injection.
+- `tests/test_workflows.py`: the workflows' rules (offline eval gated on the summary; the live eval only on `v*` tags, behind `evals`, with the one write permission on a job without the key; actions pinned; no expression in `run:`).
 - `tests/test_pipeline_e2e.py`: the pipeline through the core's `Runner` with fixture plugins standing in for calendar, obsidian and github (the core's in-memory `FixturePlugins`), the golden case's answer replayed behind the real Anthropic render, and the note written to a temporary vault by the core's local sink. Also: linked GitHub tasks routed by `link_prefix`, an unlisted owner filtered by `orgs` (and failing the run without it), a second run makes no LLM call, a dry run writes nothing, the budget at a Sonnet-class price, and what each obeyed injection does today.
 - `scripts/sync_recordings.py` (manual helper, not run in CI): refreshes the request digests of the **hand-written** answers after a prompt, schema or view change. It never rewrites a model's recording (any `model` but `claude-fixture-1`): it reports it stale, to be re-recorded.
 
