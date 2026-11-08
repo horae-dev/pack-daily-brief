@@ -1,0 +1,32 @@
+# pipelines/daily-brief.yaml (pack-daily-brief): the morning note, PLAN.md §3.2.
+#
+# Copy this file into your instance's pipelines/ folder (the core does not install pack
+# pipelines yet). Every parameter below is trusted configuration; `{{date}}` and `{{timezone}}`
+# come from the run context (the trigger's time zone, else the instance's), so a replay of a
+# run sees the same day.
+name: daily-brief
+trigger: { cron: "30 5 * * *" }          # or run by an external scheduler: `horae run daily-brief`
+steps:
+  # Read. Each source returns data; the github sources also propose one task.create per item
+  # (routed to the tasks entry of the act step below).
+  - collect:
+      - calendar.events: { start: "{{date}}", days: 2, timezone: "{{timezone}}" }
+      - obsidian.open_tasks: {}
+      - github.review_requests: { today: "{{date}}" }
+      - github.assigned: { today: "{{date}}", skip_covered: true }
+      - github.mentions: { today: "{{date}}", skip_covered: true }
+  # Rank and word: the one bounded LLM step. It sees only the skill's input view and proposes
+  # one note.replace_owned_block of block `daily-brief`, without a path.
+  - llm:
+      skill: daily-brief/rank-and-word
+      model: default                        # alias resolved in horae.yaml
+      budget: { usd: 0.05, tokens_out: 2000 }
+      on_unchanged_input: skip              # $0 path: same input, no LLM call
+  # Apply. The core fills the note's path from this entry (its trusted parameter); the sink
+  # writes only the owned block of today's assistant note.
+  - act:
+      - obsidian.write_note: { path: "Daily/{{date}}.assistant.md", mode: replace-owned }
+      # The github sources' tasks. Without this entry their task.create intents are unrouted
+      # and fail the run. Once plugin-github sends a task `link` (horae#122), add your
+      # `link_prefix: "https://github.com/<owner>/"` here: a link outside it is not routed.
+      - obsidian.write_tasks: { mode: tasks }

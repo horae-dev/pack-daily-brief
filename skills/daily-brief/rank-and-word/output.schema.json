@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "ranked", "intents"],
+  "properties": {
+    "summary": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "ranked": {
+      "type": "array",
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/item" }
+    },
+    "intents": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": { "$ref": "#/$defs/note" }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "when", "line"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["task", "review", "issue", "mention", "event"]
+        },
+        "when": {
+          "type": "string",
+          "enum": ["overdue", "today", "tomorrow", "later", "undated"]
+        },
+        "line": {
+          "type": "string",
+          "maxLength": 100
+        }
+      }
+    },
+    "note": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "block", "content"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "note.replace_owned_block"
+        },
+        "block": {
+          "type": "string",
+          "const": "daily-brief"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 2500
+        }
+      }
+    }
+  }
+}

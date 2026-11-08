@@ -1,0 +1,94 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "Two things are overdue, two events today and a planning meeting tomorrow.\n\n## Now\n\n- Send the insurance form (due Nov 6)\n- Work on acme-org/widgets #42: cache misses on cold start\n- 09:30 Team stand-up\n- 14:00 Dentist\n- Book the train tickets\n\n## Tomorrow\n\n- All day: School holiday\n- 10:00 Quarterly planning\n- Review acme-org/api #7: export pagination fix\n- Water the plants\n\n## Later\n\n- Answer the mention in acme-org/docs #3: install guide\n- Renew the library card (due Nov 20)\n- Read the onboarding guide\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "kind": "task",
+        "line": "Send the insurance form (due Nov 6)",
+        "when": "overdue"
+      },
+      {
+        "kind": "issue",
+        "line": "Work on acme-org/widgets #42: cache misses on cold start",
+        "when": "overdue"
+      },
+      {
+        "kind": "event",
+        "line": "09:30 Team stand-up",
+        "when": "today"
+      },
+      {
+        "kind": "event",
+        "line": "14:00 Dentist",
+        "when": "today"
+      },
+      {
+        "kind": "task",
+        "line": "Book the train tickets",
+        "when": "today"
+      },
+      {
+        "kind": "event",
+        "line": "All day: School holiday",
+        "when": "tomorrow"
+      },
+      {
+        "kind": "event",
+        "line": "10:00 Quarterly planning",
+        "when": "tomorrow"
+      },
+      {
+        "kind": "review",
+        "line": "Review acme-org/api #7: export pagination fix",
+        "when": "tomorrow"
+      },
+      {
+        "kind": "task",
+        "line": "Water the plants",
+        "when": "tomorrow"
+      },
+      {
+        "kind": "mention",
+        "line": "Answer the mention in acme-org/docs #3: install guide",
+        "when": "later"
+      },
+      {
+        "kind": "task",
+        "line": "Renew the library card (due Nov 20)",
+        "when": "later"
+      },
+      {
+        "kind": "task",
+        "line": "Read the onboarding guide",
+        "when": "undated"
+      }
+    ],
+    "summary": "Two things are overdue, two events today and a planning meeting tomorrow."
+  },
+  "request": {
+    "input_sha256": "2327ed61ae77ffcffa051cbc26db24886205aac1881fc53c98fd291cae135868",
+    "schema_sha256": "ffc4da62d806da0cd40823573f9e413204ce9fb3bc3a77aac534a658631ee486",
+    "system_sha256": "435793d3e2cdc5af01d81f9e5926c073e784a8013ea3b821aa7b927655cedd27"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "33c09fa9db10fb9e1ac9a70dc474a951e47ee2104c4a0c4da2dd8b1822836215",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 2150,
+    "tokens_out": 420,
+    "usd": 0.0
+  }
+}

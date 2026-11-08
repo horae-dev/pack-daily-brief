@@ -1,0 +1,36 @@
+# The rank-and-word skill of the daily-brief pipeline (schemas decision 39).
+#
+# The input view is everything the model sees: the collect step's output is a list of
+# {source, params, data}, one per source, and the paths below keep only what ranking and
+# wording need. Not shown: links, fingerprints, note paths and lines, event locations,
+# descriptions and calendar names, every other parameter. A missing field is not an error, so
+# a source that is not installed simply contributes nothing.
+#
+# Titles are free text (`class: free_text`): with a cloud model alias the core
+# de-identifies the viewed input first (schemas decision 47), replacing the terms of the
+# instance's vocabulary, and puts the real values back in the note.
+name: daily-brief/rank-and-word
+version: 0.1.0
+description: Rank the morning's tasks, reviews and events and word a short note.
+input_view:
+  "[].source":
+  "[].params.today":
+  "[].params.start":
+  "[].data.kind":
+  "[].data.items[].repo":
+  "[].data.items[].number":
+  "[].data.items[].title": { class: free_text }
+  "[].data.items[].due":
+  "[].data.tasks[].description": { class: free_text }
+  "[].data.tasks[].due":
+  "[].data.tasks[].scheduled":
+  "[].data.tasks[].priority":
+  "[].data.events[].title": { class: free_text }
+  "[].data.events[].start":
+  "[].data.events[].end":
+  "[].data.events[].all_day":
+  "[].data.events[].status":
+prompt: prompt.md
+output_schema: output.schema.json
+intents:
+  note.replace_owned_block: 1

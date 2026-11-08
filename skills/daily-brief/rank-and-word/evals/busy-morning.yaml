@@ -1,0 +1,129 @@
+# Synthetic data. A Monday with something of every kind: overdue work, two events today, a
+# cancelled one, tomorrow's review and events, later and undated tasks. The input is the
+# collect step's output for pipelines/daily-brief.yaml on 2026-11-09 in Europe/Paris (the
+# end-to-end test serves it through fixture plugins and checks the pipeline produces exactly
+# it). Fields outside the input view (ids, locations, links, fingerprints...) are here on
+# purpose: the model never sees them.
+schema_version: 1
+description: Overdue first, then today's events and work, tomorrow, later, undated.
+budget: { usd: 0.05, tokens_out: 2000 }
+targets:
+  note.replace_owned_block: Daily/2026-11-09.assistant.md
+input:
+  - source: calendar.events
+    params: { start: "2026-11-09", days: 2, timezone: Europe/Paris }
+    data:
+      window: { start: "2026-11-09T00:00:00+01:00", end: "2026-11-11T00:00:00+01:00" }
+      complete: true
+      truncated: 0
+      calendars: [{ name: calendar-1, ok: true, complete: true, events: 5, skipped: 0, truncated: 0, warnings: 0 }]
+      events:
+        - id: ev-1
+          calendar: calendar-1
+          title: Team stand-up
+          start: "2026-11-09T09:30:00+01:00"
+          end: "2026-11-09T09:45:00+01:00"
+          all_day: false
+          location: Room 2
+          description: Daily sync.
+          status: confirmed
+          recurring: true
+        - id: ev-2
+          calendar: calendar-1
+          title: Dentist
+          start: "2026-11-09T14:00:00+01:00"
+          end: "2026-11-09T14:45:00+01:00"
+          all_day: false
+          location: 12 Example Street
+          description: ""
+          status: confirmed
+          recurring: false
+        - id: ev-3
+          calendar: calendar-1
+          title: Vendor sync
+          start: "2026-11-09T16:00:00+01:00"
+          end: "2026-11-09T16:30:00+01:00"
+          all_day: false
+          location: ""
+          description: ""
+          status: cancelled
+          recurring: false
+        - id: ev-4
+          calendar: calendar-1
+          title: Quarterly planning
+          start: "2026-11-10T10:00:00+01:00"
+          end: "2026-11-10T12:00:00+01:00"
+          all_day: false
+          location: Room 1
+          description: Bring the roadmap.
+          status: confirmed
+          recurring: false
+        - id: ev-5
+          calendar: calendar-1
+          title: School holiday
+          start: "2026-11-10"
+          end: "2026-11-11"
+          all_day: true
+          location: ""
+          description: ""
+          status: confirmed
+          recurring: false
+  - source: obsidian.open_tasks
+    params: {}
+    data:
+      tasks:
+        - { key: "obsidian:task:Inbox.md:0a1b2c3d4e5f6071:0", path: Inbox.md, line: 3, status: todo, description: Send the insurance form, due: "2026-11-06", scheduled: null, priority: null, tags: [] }
+        - { key: "obsidian:task:Inbox.md:1b2c3d4e5f607182:0", path: Inbox.md, line: 4, status: todo, description: Book the train tickets, due: "2026-11-09", scheduled: null, priority: high, tags: [] }
+        - { key: "obsidian:task:Home.md:2c3d4e5f60718293:0", path: Home.md, line: 7, status: todo, description: Water the plants, due: null, scheduled: "2026-11-10", priority: null, tags: [home] }
+        - { key: "obsidian:task:Home.md:3d4e5f60718293a4:0", path: Home.md, line: 9, status: todo, description: Renew the library card, due: "2026-11-20", scheduled: null, priority: low, tags: [] }
+        - { key: "obsidian:task:Work.md:4e5f60718293a4b5:0", path: Work.md, line: 2, status: todo, description: Read the onboarding guide, due: null, scheduled: null, priority: null, tags: [] }
+  - source: github.review_requests
+    params: { today: "2026-11-09" }
+    data:
+      kind: review_requested
+      day: "2026-11-09"
+      items:
+        - { fingerprint: "github:pr:PR_kwDOSYNTH0007", type: pr, repo: acme-org/api, number: 7, title: Fix pagination of the export, url: "https://github.com/acme-org/api/pull/7", due: "2026-11-10" }
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.assigned
+    params: { today: "2026-11-09", skip_covered: true }
+    data:
+      kind: assigned
+      day: "2026-11-09"
+      items:
+        - { fingerprint: "github:issue:I_kwDOSYNTH0042", type: issue, repo: acme-org/widgets, number: 42, title: Widget cache misses on cold start, url: "https://github.com/acme-org/widgets/issues/42", due: "2026-11-06" }
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.mentions
+    params: { today: "2026-11-09", skip_covered: true }
+    data:
+      kind: mentioned
+      day: "2026-11-09"
+      items:
+        - { fingerprint: "github:issue:I_kwDOSYNTH0003", type: issue, repo: acme-org/docs, number: 3, title: Clarify the install guide, url: "https://github.com/acme-org/docs/issues/3", due: "2026-11-11" }
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+expect:
+  schema_valid: true
+  assertions:
+    - { pointer: /output/ranked, length: 12 }
+    - { pointer: /output/ranked/0/when, equals: overdue }
+    - { pointer: /output/ranked/1/when, equals: overdue }
+    - { pointer: /output/ranked/2/kind, equals: event }
+    - { pointer: /output/ranked/2/line, contains: "09:30" }
+    - { pointer: /output/ranked/3/line, contains: Dentist }
+    - { pointer: /output/ranked/4/when, equals: today }
+    - { pointer: /output/ranked/11/when, equals: undated }
+    - { pointer: /intents/0/block, equals: daily-brief }
+    - { pointer: /intents/0/content, contains: "## Now" }
+    - { pointer: /intents/0/content, contains: "## Tomorrow" }
+    - { pointer: /intents/0/content, contains: "acme-org/api #7" }
+  intent_counts: { note.replace_owned_block: 1 }
+  guard: pass
