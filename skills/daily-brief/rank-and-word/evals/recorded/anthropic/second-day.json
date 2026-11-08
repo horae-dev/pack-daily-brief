@@ -1,0 +1,52 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "One thing is overdue, one review and the train tickets today.\n\n## Now\n\n- Work on widgets #42: cache misses on cold start (due Nov 6)\n- Review api #7: export pagination fix\n- Book the train tickets\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "index": 0,
+        "kind": "issue",
+        "source": "github.assigned",
+        "when": "overdue"
+      },
+      {
+        "index": 0,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      }
+    ],
+    "summary": "One thing is overdue, one review and the train tickets today."
+  },
+  "request": {
+    "input_sha256": "22e27fe992e392f31a8f3d5bb957c7c93de8f0601fa8fe5098d40eb3cdcbf64c",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "d8728bcba525b89495f0490bfd1ad777c97222c68a5862f4d5f1dae6b33453ca"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "f49d4730855529586c8b321870e11af9afb9146d43824a4bcb3ff28e49cebfb2",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 2000,
+    "tokens_out": 120,
+    "usd": 0.0
+  }
+}

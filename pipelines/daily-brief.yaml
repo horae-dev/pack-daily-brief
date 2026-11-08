@@ -4,29 +4,43 @@
 # pipelines yet). Every parameter below is trusted configuration; `{{date}}` and `{{timezone}}`
 # come from the run context (the trigger's time zone, else the instance's), so a replay of a
 # run sees the same day.
+#
+# `Acme-Org` is a placeholder: replace it with your GitHub owner, in its canonical case (as in
+# github.com URLs), in the three `orgs` and in `link_prefix`. For several owners, list them in
+# `orgs` and add one tasks entry per owner, each with its own `link_prefix` (the prefixes must
+# not overlap).
 name: daily-brief
 trigger: { cron: "30 5 * * *" }          # or run by an external scheduler: `horae run daily-brief`
 steps:
-  # Read. Each source returns data; the github sources also propose one task.create per item
-  # (routed to the tasks entry of the act step below).
+  # Read. Each source returns data; the github sources also propose one task.create per item,
+  # with the item's link (plugin-github 0.2.0), routed to the tasks entry of the act step.
   - collect:
-      - calendar.events: { start: "{{date}}", days: 2, timezone: "{{timezone}}" }
+      # A calendar that fails gives the others' events (`complete: false`) instead of failing
+      # the source: a partial brief beats no brief, and the note says the list is incomplete.
+      - calendar.events: { start: "{{date}}", days: 2, timezone: "{{timezone}}", partial: true }
+      # plugin-obsidian#4 (in progress): open tasks, with `source_fingerprint` on the tasks
+      # Horae created from another source.
       - obsidian.open_tasks: {}
-      - github.review_requests: { today: "{{date}}" }
-      - github.assigned: { today: "{{date}}", skip_covered: true }
-      - github.mentions: { today: "{{date}}", skip_covered: true }
+      # Reviews and mentions are due the day they are collected; an assignment is due on its
+      # milestone's date. `orgs` keeps only the owners `link_prefix` covers: an item of
+      # another owner would be unrouted and fail the run.
+      - github.review_requests:
+          { today: "{{date}}", orgs: [Acme-Org], max_items: 20, due_in_business_days: 0 }
+      - github.assigned: { today: "{{date}}", orgs: [Acme-Org], max_items: 20, skip_covered: true }
+      - github.mentions:
+          { today: "{{date}}", orgs: [Acme-Org], max_items: 20, skip_covered: true, due_in_days: 0 }
   # Rank and word: the one bounded LLM step. It sees only the skill's input view and proposes
   # one note.replace_owned_block of block `daily-brief`, without a path.
   - llm:
       skill: daily-brief/rank-and-word
       model: default                        # alias resolved in horae.yaml
-      budget: { usd: 0.05, tokens_out: 2000 }
+      budget: { usd: 0.15, tokens_out: 4000 }
       on_unchanged_input: skip              # $0 path: same input, no LLM call
   # Apply. The core fills the note's path from this entry (its trusted parameter); the sink
   # writes only the owned block of today's assistant note.
   - act:
       - obsidian.write_note: { path: "Daily/{{date}}.assistant.md", mode: replace-owned }
-      # The github sources' tasks. Without this entry their task.create intents are unrouted
-      # and fail the run. Once plugin-github sends a task `link` (horae#122), add your
-      # `link_prefix: "https://github.com/<owner>/"` here: a link outside it is not routed.
-      - obsidian.write_tasks: { mode: tasks }
+      # The github sources' tasks (sink of plugin-obsidian#4). A task's link is routed only
+      # under a trusted `link_prefix`; without this entry, or with a link outside its prefix,
+      # the task is unrouted and the run fails.
+      - obsidian.write_tasks: { mode: tasks, link_prefix: "https://github.com/Acme-Org/" }

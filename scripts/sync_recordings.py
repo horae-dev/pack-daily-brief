@@ -13,8 +13,11 @@ leaving the output, usage, model and stop reason as they are.
     uv run python scripts/sync_recordings.py          # rewrite stale digests
     uv run python scripts/sync_recordings.py --check  # exit 1 if any is stale
 
-It uses helpers of `horae.evals._harness` (the eval harness's own rendering path), so a
-change there shows up as a stale recording rather than a silent difference.
+A **manual helper only**: it uses private helpers of `horae.evals._harness` (the eval
+harness's own rendering path), which the core may change at any time, so neither CI nor the
+tests run or type-check it. CI checks staleness with the public `horae eval --json` report
+instead (`summary.stale`). If a core change breaks this script, fix it or refresh the
+digests another way; the checks of the pack do not depend on it.
 """
 
 import argparse

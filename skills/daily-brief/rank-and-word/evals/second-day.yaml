@@ -1,0 +1,68 @@
+# Synthetic data. The day after busy-morning: yesterday's run created a task for each GitHub
+# item (plugin-obsidian#4 reports them with their `source_fingerprint`), and GitHub still lists
+# the items. The note lists each GitHub item once, from its source, and leaves out the open
+# tasks whose `source_fingerprint` starts with `github:`.
+schema_version: 1
+description: Tasks created from GitHub items are not listed a second time.
+budget: { usd: 0.15, tokens_out: 4000 }
+targets:
+  note.replace_owned_block: Daily/2026-11-10.assistant.md
+input:
+  - source: calendar.events
+    params: {"start": "2026-11-10", "days": 2, "timezone": "Europe/Paris", "partial": true}
+    data:
+      window: {"start": "2026-11-10T00:00:00+01:00", "end": "2026-11-12T00:00:00+01:00", "timezone": "Europe/Paris", "days": 2}
+      complete: true
+      truncated: 0
+      calendars:
+        - {"name": "calendar-1", "ok": true, "complete": true, "events": 0, "skipped": 0, "truncated": 0, "warnings": 0}
+      events: []
+  - source: obsidian.open_tasks
+    params: {}
+    data:
+      tasks:
+        - {"key": "obsidian:task:Inbox.md:dd1e08657f36aab3:0", "key_unique": true, "path": "Inbox.md", "line": 1, "line_sha256": "d071666cda0634b83383f3091be82dbab7547faac66a5f9fdf92b89a8c8119c9", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Book the train tickets", "tags": [], "fields": [{"kind": "priority", "signifier": "⏫", "value": "", "text": "⏫", "start": 29, "end": 30, "valid": true}, {"kind": "due", "signifier": "📅", "value": "2026-11-10", "text": "📅 2026-11-10", "start": 31, "end": 43, "valid": true}], "unknown": [], "due": "2026-11-10", "scheduled": null, "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": "high", "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": null, "owned_block": null, "source_fingerprint": null}
+        - {"key": "obsidian:block:Horae-GitHub.md:h-3f9a1c2b7d4e::8933223c3400a2ed", "key_unique": true, "path": "Horae/GitHub.md", "line": 1, "line_sha256": "1fe9148866dfd0726e19da0841ec144b299c716780c759cb547d4e717eb2f17d", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Review Acme-Org/api\\#7: Fix pagination of the export [link](https://github.com/Acme-Org/api/pull/7)", "tags": [], "fields": [{"kind": "due", "signifier": "📅", "value": "2026-11-09", "text": "📅 2026-11-09", "start": 106, "end": 118, "valid": true}], "unknown": [], "due": "2026-11-09", "scheduled": null, "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": null, "id": null, "depends_on": [], "on_completion": null, "block_id": "h-3f9a1c2b7d4e", "depth": 0, "parent": null, "heading": null, "owned_block": null, "source_fingerprint": "github:pr:PR_kwDOSYNTH0007"}
+        - {"key": "obsidian:block:Horae-GitHub.md:h-8b2e6d0a1f53::cd34af1a173f7f50", "key_unique": true, "path": "Horae/GitHub.md", "line": 2, "line_sha256": "be593df3d05764161c6cfede70016fbc2c2c5ed20e54ab99e7ad7ccf6b3aaaf3", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Work on Acme-Org/widgets\\#42: Widget cache misses on cold start [link](https://github.com/Acme-Org/widgets/issues/42)", "tags": [], "fields": [{"kind": "due", "signifier": "📅", "value": "2026-11-06", "text": "📅 2026-11-06", "start": 124, "end": 136, "valid": true}], "unknown": [], "due": "2026-11-06", "scheduled": null, "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": null, "id": null, "depends_on": [], "on_completion": null, "block_id": "h-8b2e6d0a1f53", "depth": 0, "parent": null, "heading": null, "owned_block": null, "source_fingerprint": "github:issue:I_kwDOSYNTH0042"}
+  - source: github.review_requests
+    params: {"today": "2026-11-10", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
+    data:
+      kind: "review_requested"
+      day: "2026-11-10"
+      items:
+        - {"fingerprint": "github:pr:PR_kwDOSYNTH0007", "type": "pr", "repo": "Acme-Org/api", "number": 7, "title": "Fix pagination of the export", "url": "https://github.com/Acme-Org/api/pull/7", "due": "2026-11-10"}
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.assigned
+    params: {"today": "2026-11-10", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true}
+    data:
+      kind: "assigned"
+      day: "2026-11-10"
+      items:
+        - {"fingerprint": "github:issue:I_kwDOSYNTH0042", "type": "issue", "repo": "Acme-Org/widgets", "number": 42, "title": "Widget cache misses on cold start", "url": "https://github.com/Acme-Org/widgets/issues/42", "due": "2026-11-06"}
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.mentions
+    params: {"today": "2026-11-10", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true, "due_in_days": 0}
+    data:
+      kind: "mentioned"
+      day: "2026-11-10"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+expect:
+  schema_valid: true
+  assertions:
+    # The review, the assignment and the train tickets: not the two github: tasks.
+    - { pointer: /output/ranked, length: 3 }
+    - { pointer: /output/ranked, contains: { kind: review, when: today, source: github.review_requests, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: issue, when: overdue, source: github.assigned, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: task, when: today, source: obsidian.open_tasks, index: 0 } }
+  intent_counts: { note.replace_owned_block: 1 }
+  guard: pass

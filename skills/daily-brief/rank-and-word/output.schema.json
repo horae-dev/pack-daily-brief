@@ -2,7 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "additionalProperties": false,
-  "required": ["summary", "ranked", "intents"],
+  "required": [
+    "summary",
+    "ranked",
+    "intents"
+  ],
   "properties": {
     "summary": {
       "type": "string",
@@ -11,39 +15,75 @@
     "ranked": {
       "type": "array",
       "maxItems": 20,
-      "items": { "$ref": "#/$defs/item" }
+      "items": {
+        "$ref": "#/$defs/item"
+      }
     },
     "intents": {
       "type": "array",
       "minItems": 1,
       "maxItems": 1,
-      "items": { "$ref": "#/$defs/note" }
+      "items": {
+        "$ref": "#/$defs/note"
+      }
     }
   },
   "$defs": {
     "item": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "when", "line"],
+      "required": [
+        "kind",
+        "when",
+        "source",
+        "index"
+      ],
       "properties": {
         "kind": {
           "type": "string",
-          "enum": ["task", "review", "issue", "mention", "event"]
+          "enum": [
+            "task",
+            "review",
+            "issue",
+            "mention",
+            "event"
+          ]
         },
         "when": {
           "type": "string",
-          "enum": ["overdue", "today", "tomorrow", "later", "undated"]
+          "enum": [
+            "overdue",
+            "today",
+            "tomorrow",
+            "later",
+            "undated"
+          ]
         },
-        "line": {
+        "source": {
           "type": "string",
-          "maxLength": 100
+          "enum": [
+            "calendar.events",
+            "obsidian.open_tasks",
+            "github.review_requests",
+            "github.assigned",
+            "github.mentions"
+          ]
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1999
         }
       }
     },
     "note": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "block", "content"],
+      "required": [
+        "type",
+        "block",
+        "content"
+      ],
       "properties": {
         "type": {
           "type": "string",

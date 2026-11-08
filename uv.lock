@@ -373,7 +373,7 @@ wheels = [
 [[package]]
 name = "horae"
 version = "0.0.0"
-source = { git = "https://github.com/horae-dev/horae?branch=main#0f5531ac972e2ea696e66d620a768dcea187f26f" }
+source = { git = "https://github.com/horae-dev/horae?branch=main#af2dc74a5b396ba7400edac01dc2398c1cbc093f" }
 dependencies = [
     { name = "anthropic" },
     { name = "cronsim" },

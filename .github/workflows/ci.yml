@@ -96,8 +96,14 @@ jobs:
           cache-python: true
       - run: uv sync
       # Offline: each case's recorded answer through the real render, validator and guard.
-      - run: uv run horae eval daily-brief/rank-and-word --plugin-dir .
-      - run: uv run python scripts/sync_recordings.py --check
+      # The JSON report also says which recordings are stale (made for another prompt,
+      # schema or view): `horae eval` only warns about those, so fail on them here.
+      - name: Every case passes, none is stale
+        run: |
+          set -euo pipefail
+          uv run horae eval daily-brief/rank-and-word --plugin-dir . --json > "${RUNNER_TEMP}/eval.json"
+          jq -r '.cases[] | "\(.status)  \(.case) [\(.backend)] guard=\(.guard) stale=\(.stale | join(","))"' "${RUNNER_TEMP}/eval.json"
+          jq -e '.summary.cases > 0 and .summary.failed == 0 and .summary.errors == 0 and .summary.stale == 0' "${RUNNER_TEMP}/eval.json" > /dev/null
 
   gitleaks:
     name: Secret scan (gitleaks)

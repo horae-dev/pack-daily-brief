@@ -13,20 +13,20 @@
     "summary": "Nothing is planned today."
   },
   "request": {
-    "input_sha256": "0232c1f63d702dff6f01256f05e9cc65ec8f115ab7e6de1c90a3b0fdb2af2464",
-    "schema_sha256": "ffc4da62d806da0cd40823573f9e413204ce9fb3bc3a77aac534a658631ee486",
-    "system_sha256": "435793d3e2cdc5af01d81f9e5926c073e784a8013ea3b821aa7b927655cedd27"
+    "input_sha256": "0f337b9d6f2b541ba9e013caf0dc34bf59f7767d99852d996d70673695527fae",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "d8728bcba525b89495f0490bfd1ad777c97222c68a5862f4d5f1dae6b33453ca"
   },
   "schema_version": 1,
   "skill": "daily-brief/rank-and-word",
-  "skill_digest": "33c09fa9db10fb9e1ac9a70dc474a951e47ee2104c4a0c4da2dd8b1822836215",
+  "skill_digest": "f49d4730855529586c8b321870e11af9afb9146d43824a4bcb3ff28e49cebfb2",
   "skill_version": "0.1.0",
   "stop_reason": "end_turn",
   "usage": {
     "cache_read_tokens": null,
     "cache_write_tokens": null,
     "priced": false,
-    "tokens_in": 1310,
+    "tokens_in": 1900,
     "tokens_out": 48,
     "usd": 0.0
   }

@@ -2,13 +2,24 @@
 #
 # The input view is everything the model sees: the collect step's output is a list of
 # {source, params, data}, one per source, and the paths below keep only what ranking and
-# wording need. Not shown: links, fingerprints, note paths and lines, event locations,
+# wording need. Not shown: links and URLs, note paths and lines, event locations,
 # descriptions and calendar names, every other parameter. A missing field is not an error, so
 # a source that is not installed simply contributes nothing.
 #
-# Titles are free text (`class: free_text`): with a cloud model alias the core
-# de-identifies the viewed input first (schemas decision 47), replacing the terms of the
-# instance's vocabulary, and puts the real values back in the note.
+# - `data.partial`, `data.truncated`, `data.complete`, `data.errors`: whether a source's list
+#   is complete (calendar: `complete`, `truncated`; github: `partial`, `truncated`, `errors`),
+#   so the note can say when it is not.
+# - `data.tasks[].source_fingerprint` (plugin-obsidian#4): set on a task Horae created from
+#   another source. The view cannot filter by value, so the prompt leaves out the tasks whose
+#   fingerprint starts with `github:` (the GitHub item itself is listed by its source).
+#
+# Every string of the viewed input is scanned for the instance's vocabulary before a cloud
+# model (schemas decision 47 B); `class: free_text` marks the text written by other people
+# (it is counted in the request's de-identification summary, not scanned differently).
+#
+# TODO(horae-dev/horae#128): add `links: none` once the core supports it, so the guard
+# refuses every link and URL in the note (the brief needs none; today a URL that is in a
+# viewed title passes the guard).
 name: daily-brief/rank-and-word
 version: 0.1.0
 description: Rank the morning's tasks, reviews and events and word a short note.
@@ -17,6 +28,10 @@ input_view:
   "[].params.today":
   "[].params.start":
   "[].data.kind":
+  "[].data.partial":
+  "[].data.truncated":
+  "[].data.complete":
+  "[].data.errors":
   "[].data.items[].repo":
   "[].data.items[].number":
   "[].data.items[].title": { class: free_text }
@@ -24,7 +39,9 @@ input_view:
   "[].data.tasks[].description": { class: free_text }
   "[].data.tasks[].due":
   "[].data.tasks[].scheduled":
+  "[].data.tasks[].start":
   "[].data.tasks[].priority":
+  "[].data.tasks[].source_fingerprint":
   "[].data.events[].title": { class: free_text }
   "[].data.events[].start":
   "[].data.events[].end":

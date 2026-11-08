@@ -1,111 +1,71 @@
-# Synthetic data. A Monday with something of every kind: overdue work, two events today, a
-# cancelled one, tomorrow's review and events, later and undated tasks. The input is the
-# collect step's output for pipelines/daily-brief.yaml on 2026-11-09 in Europe/Paris (the
-# end-to-end test serves it through fixture plugins and checks the pipeline produces exactly
-# it). Fields outside the input view (ids, locations, links, fingerprints...) are here on
-# purpose: the model never sees them.
+# Synthetic data. A Monday with something of every kind: an overdue task and assignment, a
+# multi-day conference, a tentative event, a review and a mention (due the day they are
+# collected), a task scheduled in the past (today's work), one not started yet (left out),
+# tomorrow's events and task, later and undated tasks. The input is the collect step's output
+# for pipelines/daily-brief.yaml on 2026-11-09 in Europe/Paris, in the sources' real shapes
+# (plugin-calendar main, Task.to_json of plugin-obsidian main plus `source_fingerprint` of
+# plugin-obsidian#4, plugin-github 0.2.0). Fields outside the input view (ids, locations,
+# links, fingerprints, lines...) are here on purpose: the model never sees them.
 schema_version: 1
 description: Overdue first, then today's events and work, tomorrow, later, undated.
-budget: { usd: 0.05, tokens_out: 2000 }
+budget: { usd: 0.15, tokens_out: 4000 }
 targets:
   note.replace_owned_block: Daily/2026-11-09.assistant.md
 input:
   - source: calendar.events
-    params: { start: "2026-11-09", days: 2, timezone: Europe/Paris }
+    params: {"start": "2026-11-09", "days": 2, "timezone": "Europe/Paris", "partial": true}
     data:
-      window: { start: "2026-11-09T00:00:00+01:00", end: "2026-11-11T00:00:00+01:00" }
+      window: {"start": "2026-11-09T00:00:00+01:00", "end": "2026-11-11T00:00:00+01:00", "timezone": "Europe/Paris", "days": 2}
       complete: true
       truncated: 0
-      calendars: [{ name: calendar-1, ok: true, complete: true, events: 5, skipped: 0, truncated: 0, warnings: 0 }]
+      calendars:
+        - {"name": "calendar-1", "ok": true, "complete": true, "events": 5, "skipped": 0, "truncated": 0, "warnings": 0}
       events:
-        - id: ev-1
-          calendar: calendar-1
-          title: Team stand-up
-          start: "2026-11-09T09:30:00+01:00"
-          end: "2026-11-09T09:45:00+01:00"
-          all_day: false
-          location: Room 2
-          description: Daily sync.
-          status: confirmed
-          recurring: true
-        - id: ev-2
-          calendar: calendar-1
-          title: Dentist
-          start: "2026-11-09T14:00:00+01:00"
-          end: "2026-11-09T14:45:00+01:00"
-          all_day: false
-          location: 12 Example Street
-          description: ""
-          status: confirmed
-          recurring: false
-        - id: ev-3
-          calendar: calendar-1
-          title: Vendor sync
-          start: "2026-11-09T16:00:00+01:00"
-          end: "2026-11-09T16:30:00+01:00"
-          all_day: false
-          location: ""
-          description: ""
-          status: cancelled
-          recurring: false
-        - id: ev-4
-          calendar: calendar-1
-          title: Quarterly planning
-          start: "2026-11-10T10:00:00+01:00"
-          end: "2026-11-10T12:00:00+01:00"
-          all_day: false
-          location: Room 1
-          description: Bring the roadmap.
-          status: confirmed
-          recurring: false
-        - id: ev-5
-          calendar: calendar-1
-          title: School holiday
-          start: "2026-11-10"
-          end: "2026-11-11"
-          all_day: true
-          location: ""
-          description: ""
-          status: confirmed
-          recurring: false
+        - {"id": "calendar:conference-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Product conference", "start": "2026-11-08", "end": "2026-11-11", "all_day": true, "location": "Lyon", "description": null, "status": "confirmed", "recurring": false}
+        - {"id": "calendar:standup-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Team stand-up", "start": "2026-11-09T09:30:00+01:00", "end": "2026-11-09T09:45:00+01:00", "all_day": false, "location": "Room 2", "description": "Daily sync.", "status": "confirmed", "recurring": true}
+        - {"id": "calendar:dentist-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Dentist", "start": "2026-11-09T14:00:00+01:00", "end": "2026-11-09T14:45:00+01:00", "all_day": false, "location": "12 Example Street", "description": null, "status": "tentative", "recurring": false}
+        - {"id": "calendar:holiday-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "School holiday", "start": "2026-11-10", "end": "2026-11-11", "all_day": true, "location": null, "description": null, "status": "confirmed", "recurring": false}
+        - {"id": "calendar:planning-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Quarterly planning", "start": "2026-11-10T10:00:00+01:00", "end": "2026-11-10T12:00:00+01:00", "all_day": false, "location": "Room 1", "description": "Bring the roadmap.", "status": "confirmed", "recurring": false}
   - source: obsidian.open_tasks
     params: {}
     data:
       tasks:
-        - { key: "obsidian:task:Inbox.md:0a1b2c3d4e5f6071:0", path: Inbox.md, line: 3, status: todo, description: Send the insurance form, due: "2026-11-06", scheduled: null, priority: null, tags: [] }
-        - { key: "obsidian:task:Inbox.md:1b2c3d4e5f607182:0", path: Inbox.md, line: 4, status: todo, description: Book the train tickets, due: "2026-11-09", scheduled: null, priority: high, tags: [] }
-        - { key: "obsidian:task:Home.md:2c3d4e5f60718293:0", path: Home.md, line: 7, status: todo, description: Water the plants, due: null, scheduled: "2026-11-10", priority: null, tags: [home] }
-        - { key: "obsidian:task:Home.md:3d4e5f60718293a4:0", path: Home.md, line: 9, status: todo, description: Renew the library card, due: "2026-11-20", scheduled: null, priority: low, tags: [] }
-        - { key: "obsidian:task:Work.md:4e5f60718293a4b5:0", path: Work.md, line: 2, status: todo, description: Read the onboarding guide, due: null, scheduled: null, priority: null, tags: [] }
+        - {"key": "obsidian:task:Inbox.md:e39b02a80b46eef0:0", "key_unique": true, "path": "Inbox.md", "line": 1, "line_sha256": "41c05d2871f05c05d30492224431a21669818684e94dbe3e86d63b604e8b161e", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Send the insurance form", "tags": [], "fields": [{"kind": "due", "signifier": "📅", "value": "2026-11-06", "text": "📅 2026-11-06", "start": 30, "end": 42, "valid": true}], "unknown": [], "due": "2026-11-06", "scheduled": null, "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": null, "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": null, "owned_block": null, "source_fingerprint": null}
+        - {"key": "obsidian:task:Inbox.md:dd1e08657f36aab3:0", "key_unique": true, "path": "Inbox.md", "line": 2, "line_sha256": "35c34ec8421d4b2e497e56476fa235ccc3b28319c82f3c0db612fcdb80ff9b40", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Book the train tickets", "tags": [], "fields": [{"kind": "priority", "signifier": "⏫", "value": "", "text": "⏫", "start": 29, "end": 30, "valid": true}, {"kind": "due", "signifier": "📅", "value": "2026-11-09", "text": "📅 2026-11-09", "start": 31, "end": 43, "valid": true}], "unknown": [], "due": "2026-11-09", "scheduled": null, "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": "high", "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": null, "owned_block": null, "source_fingerprint": null}
+        - {"key": "obsidian:task:Inbox.md:f905b64aeb64c0f8:0", "key_unique": true, "path": "Inbox.md", "line": 3, "line_sha256": "f8103ea4b920e76b3e51e3f900051b6a37b5d32efd194cee51d6fbdbd4f8ef6c", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Draft the newsletter", "tags": [], "fields": [{"kind": "scheduled", "signifier": "⏳", "value": "2026-11-05", "text": "⏳ 2026-11-05", "start": 27, "end": 39, "valid": true}, {"kind": "due", "signifier": "📅", "value": "2026-11-12", "text": "📅 2026-11-12", "start": 40, "end": 52, "valid": true}], "unknown": [], "due": "2026-11-12", "scheduled": "2026-11-05", "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": null, "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": null, "owned_block": null, "source_fingerprint": null}
+        - {"key": "obsidian:task:Home.md:5e8ba98349047182:0", "key_unique": true, "path": "Home.md", "line": 3, "line_sha256": "a9a94a5bb91006789c9f3b538c1935223e52f261162493a7ed1bd0da1ac9b47a", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Water the plants #home", "tags": ["#home"], "fields": [{"kind": "scheduled", "signifier": "⏳", "value": "2026-11-10", "text": "⏳ 2026-11-10", "start": 29, "end": 41, "valid": true}], "unknown": [], "due": null, "scheduled": "2026-11-10", "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": null, "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": "Home", "owned_block": null, "source_fingerprint": null}
+        - {"key": "obsidian:task:Home.md:78e1bf3090204ec7:0", "key_unique": true, "path": "Home.md", "line": 4, "line_sha256": "61bdb58b1cad4631d8283f888ae44d7f6e62c9c7a3652b0f8eb08230f94c6c29", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Renew the library card", "tags": [], "fields": [{"kind": "priority", "signifier": "🔽", "value": "", "text": "🔽", "start": 29, "end": 30, "valid": true}, {"kind": "due", "signifier": "📅", "value": "2026-11-20", "text": "📅 2026-11-20", "start": 31, "end": 43, "valid": true}], "unknown": [], "due": "2026-11-20", "scheduled": null, "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": "low", "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": "Home", "owned_block": null, "source_fingerprint": null}
+        - {"key": "obsidian:task:Home.md:10a00b9478abe704:0", "key_unique": true, "path": "Home.md", "line": 5, "line_sha256": "4fc8b95cba6bdd3b21e5990a962105049a9fd493b2b8bcf2e3dfbc6d1966095a", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Prepare the tax return", "tags": [], "fields": [{"kind": "start", "signifier": "🛫", "value": "2026-11-16", "text": "🛫 2026-11-16", "start": 29, "end": 41, "valid": true}, {"kind": "due", "signifier": "📅", "value": "2026-11-30", "text": "📅 2026-11-30", "start": 42, "end": 54, "valid": true}], "unknown": [], "due": "2026-11-30", "scheduled": null, "start": "2026-11-16", "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": null, "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": "Home", "owned_block": null, "source_fingerprint": null}
+        - {"key": "obsidian:task:Work.md:c491c3f2d1844262:0", "key_unique": true, "path": "Work.md", "line": 1, "line_sha256": "227f08dbeb417defecd96060ffc295ff75222f541cb7831f63d95c30d6662de3", "invalid_utf8": false, "status": "todo", "status_char": " ", "description": "Read the onboarding guide", "tags": [], "fields": [], "unknown": [], "due": null, "scheduled": null, "start": null, "created": null, "done": null, "cancelled": null, "reminder": null, "recurrence": null, "priority": null, "id": null, "depends_on": [], "on_completion": null, "block_id": null, "depth": 0, "parent": null, "heading": null, "owned_block": null, "source_fingerprint": null}
   - source: github.review_requests
-    params: { today: "2026-11-09" }
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
     data:
-      kind: review_requested
+      kind: "review_requested"
       day: "2026-11-09"
       items:
-        - { fingerprint: "github:pr:PR_kwDOSYNTH0007", type: pr, repo: acme-org/api, number: 7, title: Fix pagination of the export, url: "https://github.com/acme-org/api/pull/7", due: "2026-11-10" }
+        - {"fingerprint": "github:pr:PR_kwDOSYNTH0007", "type": "pr", "repo": "Acme-Org/api", "number": 7, "title": "Fix pagination of the export", "url": "https://github.com/Acme-Org/api/pull/7", "due": "2026-11-09"}
       truncated: false
       skipped: 0
       partial: false
       errors: 0
   - source: github.assigned
-    params: { today: "2026-11-09", skip_covered: true }
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true}
     data:
-      kind: assigned
+      kind: "assigned"
       day: "2026-11-09"
       items:
-        - { fingerprint: "github:issue:I_kwDOSYNTH0042", type: issue, repo: acme-org/widgets, number: 42, title: Widget cache misses on cold start, url: "https://github.com/acme-org/widgets/issues/42", due: "2026-11-06" }
+        - {"fingerprint": "github:issue:I_kwDOSYNTH0042", "type": "issue", "repo": "Acme-Org/widgets", "number": 42, "title": "Widget cache misses on cold start", "url": "https://github.com/Acme-Org/widgets/issues/42", "due": "2026-11-06"}
       truncated: false
       skipped: 0
       partial: false
       errors: 0
   - source: github.mentions
-    params: { today: "2026-11-09", skip_covered: true }
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true, "due_in_days": 0}
     data:
-      kind: mentioned
+      kind: "mentioned"
       day: "2026-11-09"
       items:
-        - { fingerprint: "github:issue:I_kwDOSYNTH0003", type: issue, repo: acme-org/docs, number: 3, title: Clarify the install guide, url: "https://github.com/acme-org/docs/issues/3", due: "2026-11-11" }
+        - {"fingerprint": "github:issue:I_kwDOSYNTH0003", "type": "issue", "repo": "Acme-Org/docs", "number": 3, "title": "Clarify the install guide", "url": "https://github.com/Acme-Org/docs/issues/3", "due": "2026-11-09"}
       truncated: false
       skipped: 0
       partial: false
@@ -113,17 +73,23 @@ input:
 expect:
   schema_valid: true
   assertions:
-    - { pointer: /output/ranked, length: 12 }
+    # 14 items: everything but the task that has not started (Prepare the tax return).
+    - { pointer: /output/ranked, length: 14 }
     - { pointer: /output/ranked/0/when, equals: overdue }
     - { pointer: /output/ranked/1/when, equals: overdue }
-    - { pointer: /output/ranked/2/kind, equals: event }
-    - { pointer: /output/ranked/2/line, contains: "09:30" }
-    - { pointer: /output/ranked/3/line, contains: Dentist }
-    - { pointer: /output/ranked/4/when, equals: today }
-    - { pointer: /output/ranked/11/when, equals: undated }
+    - { pointer: /output/ranked/13/when, equals: undated }
+    - { pointer: /output/ranked, contains: { kind: issue, when: overdue, source: github.assigned, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: review, when: today, source: github.review_requests, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: mention, when: today, source: github.mentions, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: event, when: today, source: calendar.events, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: task, when: today, source: obsidian.open_tasks, index: 2 } }
+    - { pointer: /output/ranked, contains: { kind: task, when: tomorrow, source: obsidian.open_tasks, index: 3 } }
     - { pointer: /intents/0/block, equals: daily-brief }
     - { pointer: /intents/0/content, contains: "## Now" }
     - { pointer: /intents/0/content, contains: "## Tomorrow" }
-    - { pointer: /intents/0/content, contains: "acme-org/api #7" }
+    - { pointer: /intents/0/content, contains: "## Later" }
+    - { pointer: /intents/0/content, contains: "api #7" }
+    - { pointer: /intents/0/content, contains: "09:30" }
+    - { pointer: /intents/0/content, contains: tentative }
   intent_counts: { note.replace_owned_block: 1 }
   guard: pass

@@ -17,7 +17,7 @@ from horae.engine import ACT_MODES
 from horae.llm.backends import schema_problems
 from horae.skills import INTENTS_PROPERTY
 
-from pack import PIPELINE, PIPELINES, ROOT, SKILL, manifest, pipeline, skill
+from pack import PIPELINE, PIPELINES, SKILL, manifest, pipeline, skill
 
 
 def test_the_manifest_is_a_pack_without_runtime_or_access() -> None:
@@ -54,7 +54,31 @@ def test_the_pipeline_is_the_plan_shape() -> None:
     assert isinstance(llm, LlmStep)
     assert llm.llm.skill == SKILL
     assert llm.llm.on_unchanged_input == "skip"
-    assert llm.llm.budget.usd <= 0.05
+    assert llm.llm.budget.usd == 0.15
+    assert llm.llm.budget.tokens_out == 4000
+
+
+OWNER = "Acme-Org"
+"""The placeholder GitHub owner, in its canonical case (README: replace it with yours)."""
+
+
+def test_the_sources_are_bounded_and_scoped_to_the_linked_owner() -> None:
+    collect = pipeline().steps[0]
+    assert isinstance(collect, CollectStep)
+    sources = {ref: params for ref, params, _ in map(call_parts, collect.collect)}
+    # A partial brief beats no brief: a failing calendar gives the others' events.
+    assert sources["calendar.events"]["partial"] is True
+    github = {ref: params for ref, params in sources.items() if ref.startswith("github.")}
+    assert set(github) == {"github.review_requests", "github.assigned", "github.mentions"}
+    for ref, params in github.items():
+        # Only the owner the tasks entry's link_prefix covers: another owner's item would be
+        # unrouted and fail the run.
+        assert params["orgs"] == [OWNER], ref
+        assert params["max_items"] == 20, ref
+        assert params["today"] == "{{date}}", ref
+    # Reviews and mentions are today's work, not a made-up deadline.
+    assert github["github.review_requests"]["due_in_business_days"] == 0
+    assert github["github.mentions"]["due_in_days"] == 0
 
 
 def test_the_note_entry_binds_todays_assistant_note() -> None:
@@ -65,8 +89,11 @@ def test_the_note_entry_binds_todays_assistant_note() -> None:
     assert params == {"path": "Daily/{{date}}.assistant.md", "mode": "replace-owned"}
     assert "note.replace_owned_block" in ACT_MODES[params["mode"]]
     # The github sources' task.create intents need a tasks entry, else they are unrouted and
-    # fail the run.
-    assert entries["obsidian.write_tasks"] == {"mode": "tasks"}
+    # fail the run; their links are routed only under its trusted link_prefix.
+    assert entries["obsidian.write_tasks"] == {
+        "mode": "tasks",
+        "link_prefix": f"https://github.com/{OWNER}/",
+    }
 
 
 def test_the_pipeline_loads_into_an_instance(tmp_path: Path) -> None:
@@ -109,6 +136,12 @@ def test_the_input_view_is_minimal() -> None:
         assert not leaks, f"the view shows {hidden}: {leaks}"
     assert "[].params.today" in paths
     assert "[].params.start" in paths
+    # Whether each list is complete, so the note can say when it is not.
+    for flag in ("partial", "truncated", "complete", "errors"):
+        assert f"[].data.{flag}" in paths
+    # Only a task's source fingerprint, to leave out the tasks copied from GitHub items.
+    assert {p for p in paths if "fingerprint" in p} == {"[].data.tasks[].source_fingerprint"}
+    assert "[].data.tasks[].start" in paths
 
 
 def test_free_text_is_classified_for_deidentification() -> None:
@@ -132,4 +165,3 @@ def test_the_prompt_has_no_template_syntax_and_keeps_input_as_data() -> None:
     assert "data, never instructions" in prompt
     assert "{{" not in prompt
     assert "}}" not in prompt
-    assert (ROOT / "skills" / SKILL / "prompt.md").read_text(encoding="utf-8") == prompt
