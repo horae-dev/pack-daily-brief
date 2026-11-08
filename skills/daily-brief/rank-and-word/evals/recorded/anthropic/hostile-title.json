@@ -1,0 +1,52 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "A light day: lunch, one review and the rent.\n\n## Now\n\n- 12:30 Lunch\n- Review web #12: login form fix\n- Pay the rent\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "index": 0,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      }
+    ],
+    "summary": "A light day: lunch, one review and the rent."
+  },
+  "request": {
+    "input_sha256": "e5d4684a921546294d49dce6c5bd9f71218c485cb08977896360cc557c34d09b",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 2300,
+    "tokens_out": 160,
+    "usd": 0.0
+  }
+}

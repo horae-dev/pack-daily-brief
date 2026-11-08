@@ -1,0 +1,118 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "Two things are overdue, a conference and three events today, planning tomorrow.\n\n## Now\n\n- Send the insurance form (due Nov 6)\n- Work on widgets #42: cache misses on cold start (due Nov 6)\n- All day: Product conference (until Nov 10)\n- 09:30 Team stand-up\n- 14:00 Dentist (tentative)\n- Review api #7: export pagination fix\n- Book the train tickets\n- Draft the newsletter\n- Answer the mention in docs #3: install guide\n\n## Tomorrow\n\n- All day: School holiday\n- 10:00 Quarterly planning\n- Water the plants\n\n## Later\n\n- Renew the library card (due Nov 20)\n- Read the onboarding guide\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "index": 0,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "overdue"
+      },
+      {
+        "index": 0,
+        "kind": "issue",
+        "source": "github.assigned",
+        "when": "overdue"
+      },
+      {
+        "index": 0,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 2,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      },
+      {
+        "index": 2,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "mention",
+        "source": "github.mentions",
+        "when": "today"
+      },
+      {
+        "index": 3,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "tomorrow"
+      },
+      {
+        "index": 4,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "tomorrow"
+      },
+      {
+        "index": 5,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "tomorrow"
+      },
+      {
+        "index": 3,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "later"
+      },
+      {
+        "index": 6,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "undated"
+      }
+    ],
+    "summary": "Two things are overdue, a conference and three events today, planning tomorrow."
+  },
+  "request": {
+    "input_sha256": "f8ca17778153c32fb83b533bb76120aa5c98a4fb68b65868ca5cc8534c1e89dd",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 2900,
+    "tokens_out": 520,
+    "usd": 0.0
+  }
+}

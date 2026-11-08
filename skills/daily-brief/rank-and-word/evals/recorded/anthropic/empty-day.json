@@ -1,0 +1,33 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "Nothing planned today.\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [],
+    "summary": "Nothing is planned today."
+  },
+  "request": {
+    "input_sha256": "3f7abb3555ec7b94ec6ba82cd287671eeeb8748bf8277db01a95f9673a06a45b",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 1900,
+    "tokens_out": 48,
+    "usd": 0.0
+  }
+}

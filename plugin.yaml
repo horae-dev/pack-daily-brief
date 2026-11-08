@@ -1,0 +1,15 @@
+# A pipeline pack (PLAN.md §3.1, §5): the daily-brief pipeline and the skill its llm step
+# runs. No runtime (schemas decision 18): the pack ships files only, so it needs no network,
+# secret or path. Its one intent is the note block the skill proposes; the obsidian plugin's
+# sink applies it.
+name: pack-daily-brief
+version: 0.1.0
+horae: ">=0,<0.2"
+description: The morning note pipeline and its rank-and-word skill.
+license: Apache-2.0
+homepage: https://github.com/horae-dev/pack-daily-brief
+provides:
+  skills: [daily-brief/rank-and-word]
+  pipelines: [daily-brief]
+permissions:
+  intents: [note.replace_owned_block]

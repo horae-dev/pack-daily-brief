@@ -1,0 +1,81 @@
+# Synthetic data. Some lists are incomplete: one of two calendars failed (`partial: true` on
+# the calendar source returns the other one's events, `complete: false`), GitHub hid an
+# organisation's review requests (`partial: true`, `errors: 1`) and more items were assigned
+# than `max_items` (`truncated: true`). The note says the list is incomplete rather than
+# presenting it as the whole day.
+schema_version: 1
+description: Incomplete sources are listed and the note says the list is incomplete.
+budget: { usd: 0.15, tokens_out: 4000 }
+targets:
+  note.replace_owned_block: Daily/2026-11-09.assistant.md
+input:
+  - source: calendar.events
+    params: {"start": "2026-11-09", "days": 2, "timezone": "Europe/Paris", "partial": true}
+    data:
+      window: {"start": "2026-11-09T00:00:00+01:00", "end": "2026-11-11T00:00:00+01:00", "timezone": "Europe/Paris", "days": 2}
+      complete: false
+      truncated: 0
+      calendars:
+        - {"name": "calendar-1", "ok": true, "complete": true, "events": 1, "skipped": 0, "truncated": 0, "warnings": 0}
+        - {"name": "calendar-2", "ok": false, "error": "timeout"}
+      events:
+        - {"id": "calendar:standup-example.org::0a1b2c3d4e5f6071", "calendar": "calendar-1", "title": "Team stand-up", "start": "2026-11-09T09:30:00+01:00", "end": "2026-11-09T09:45:00+01:00", "all_day": false, "location": null, "description": null, "status": "confirmed", "recurring": true}
+  - source: obsidian.open_tasks
+    params: {"limit": 100}
+    data:
+      tasks:
+        - {"key": "obsidian:task:Inbox.md:dd1e08657f36aab3:0", "source_fingerprint": null, "description": "Book the train tickets", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 1, "line_sha256": "35c34ec8421d4b2e497e56476fa235ccc3b28319c82f3c0db612fcdb80ff9b40", "heading": null, "due": "2026-11-09", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": "high", "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+      more: 0
+      output_cut: false
+      open_statuses: " /"
+      withheld: []
+      withheld_more: 0
+      hidden: []
+      hidden_more: 0
+      horae_output: 0
+      edited_horae_tasks: []
+      edited_more: 0
+      not_open_statuses: {}
+      complete: true
+      truncated: false
+      skipped: []
+      index: "ok"
+  - source: github.review_requests
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
+    data:
+      kind: "review_requested"
+      day: "2026-11-09"
+      items:
+        - {"fingerprint": "github:pr:PR_kwDOSYNTH0007", "type": "pr", "repo": "Acme-Org/api", "number": 7, "title": "Fix pagination of the export", "url": "https://github.com/Acme-Org/api/pull/7", "due": "2026-11-09"}
+      truncated: false
+      skipped: 0
+      partial: true
+      errors: 1
+  - source: github.assigned
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true}
+    data:
+      kind: "assigned"
+      day: "2026-11-09"
+      items:
+        - {"fingerprint": "github:issue:I_kwDOSYNTH0042", "type": "issue", "repo": "Acme-Org/widgets", "number": 42, "title": "Widget cache misses on cold start", "url": "https://github.com/Acme-Org/widgets/issues/42", "due": "2026-11-06"}
+      truncated: true
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.mentions
+    params: {"today": "2026-11-09", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true, "due_in_days": 0}
+    data:
+      kind: "mentioned"
+      day: "2026-11-09"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+expect:
+  schema_valid: true
+  assertions:
+    - { pointer: /output/ranked, length: 4 }
+    - { pointer: /intents/0/content, contains: incomplete }
+  intent_counts: { note.replace_owned_block: 1 }
+  guard: pass

@@ -1,0 +1,83 @@
+# Synthetic data. The day after busy-morning: yesterday's run created a task for each GitHub
+# item (plugin-obsidian's `open_tasks` reports them with their `source_fingerprint`), and GitHub still lists
+# the items. The note lists each GitHub item once, from its source, and leaves out the open
+# tasks whose `source_fingerprint` starts with `github:`.
+schema_version: 1
+description: Tasks created from GitHub items are not listed a second time.
+budget: { usd: 0.15, tokens_out: 4000 }
+targets:
+  note.replace_owned_block: Daily/2026-11-10.assistant.md
+input:
+  - source: calendar.events
+    params: {"start": "2026-11-10", "days": 2, "timezone": "Europe/Paris", "partial": true}
+    data:
+      window: {"start": "2026-11-10T00:00:00+01:00", "end": "2026-11-12T00:00:00+01:00", "timezone": "Europe/Paris", "days": 2}
+      complete: true
+      truncated: 0
+      calendars:
+        - {"name": "calendar-1", "ok": true, "complete": true, "events": 0, "skipped": 0, "truncated": 0, "warnings": 0}
+      events: []
+  - source: obsidian.open_tasks
+    params: {"limit": 100}
+    data:
+      tasks:
+        - {"key": "obsidian:horae:h-8024c1949672", "source_fingerprint": "github:issue:I_kwDOSYNTH0042", "description": "Work on Acme-Org/widgets\\#42: Widget cache misses on cold start [link](https://github.com/Acme-Org/widgets/issues/42)", "description_cut": false, "status": "todo", "status_char": " ", "path": "Tasks.assistant.md", "line": 2, "line_sha256": "fbe98189504daed81b2fe20a300b81bb16b1762c15cb2c3e0857deb664deab65", "heading": null, "due": "2026-11-06", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": "https://github.com/Acme-Org/widgets/issues/42", "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": "h-8024c1949672", "edited": false}
+        - {"key": "obsidian:horae:h-3d868dfd0130", "source_fingerprint": "github:pr:PR_kwDOSYNTH0007", "description": "Review Acme-Org/api\\#7: Fix pagination of the export [link](https://github.com/Acme-Org/api/pull/7)", "description_cut": false, "status": "todo", "status_char": " ", "path": "Tasks.assistant.md", "line": 1, "line_sha256": "32c89d5a1fb03f3eb4c96134d37a05f52b557f3ede293fc14ecec14266b03fb7", "heading": null, "due": "2026-11-09", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": "https://github.com/Acme-Org/api/pull/7", "priority": null, "recurrence": null, "recurring": false, "id": null, "block_id": "h-3d868dfd0130", "edited": false}
+        - {"key": "obsidian:task:Inbox.md:dd1e08657f36aab3:0", "source_fingerprint": null, "description": "Book the train tickets", "description_cut": false, "status": "todo", "status_char": " ", "path": "Inbox.md", "line": 1, "line_sha256": "d071666cda0634b83383f3091be82dbab7547faac66a5f9fdf92b89a8c8119c9", "heading": null, "due": "2026-11-10", "scheduled": null, "start": null, "reminder": null, "snoozed_until": null, "snoozed": false, "tags": [], "link": null, "priority": "high", "recurrence": null, "recurring": false, "id": null, "block_id": null, "edited": false}
+      more: 0
+      output_cut: false
+      open_statuses: " /"
+      withheld: []
+      withheld_more: 0
+      hidden: []
+      hidden_more: 0
+      horae_output: 0
+      edited_horae_tasks: []
+      edited_more: 0
+      not_open_statuses: {}
+      complete: true
+      truncated: false
+      skipped: []
+      index: "ok"
+  - source: github.review_requests
+    params: {"today": "2026-11-10", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
+    data:
+      kind: "review_requested"
+      day: "2026-11-10"
+      items:
+        - {"fingerprint": "github:pr:PR_kwDOSYNTH0007", "type": "pr", "repo": "Acme-Org/api", "number": 7, "title": "Fix pagination of the export", "url": "https://github.com/Acme-Org/api/pull/7", "due": "2026-11-10"}
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.assigned
+    params: {"today": "2026-11-10", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true}
+    data:
+      kind: "assigned"
+      day: "2026-11-10"
+      items:
+        - {"fingerprint": "github:issue:I_kwDOSYNTH0042", "type": "issue", "repo": "Acme-Org/widgets", "number": 42, "title": "Widget cache misses on cold start", "url": "https://github.com/Acme-Org/widgets/issues/42", "due": "2026-11-06"}
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.mentions
+    params: {"today": "2026-11-10", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true, "due_in_days": 0}
+    data:
+      kind: "mentioned"
+      day: "2026-11-10"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+expect:
+  schema_valid: true
+  assertions:
+    # The review, the assignment and the train tickets: not the two github: tasks.
+    - { pointer: /output/ranked, length: 3 }
+    - { pointer: /output/ranked, contains: { kind: review, when: today, source: github.review_requests, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: issue, when: overdue, source: github.assigned, index: 0 } }
+    - { pointer: /output/ranked, contains: { kind: task, when: today, source: obsidian.open_tasks, index: 2 } }
+  intent_counts: { note.replace_owned_block: 1 }
+  guard: pass

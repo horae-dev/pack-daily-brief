@@ -1,0 +1,74 @@
+# Synthetic data. Every source answers, with nothing in it: the note still gets its block,
+# saying so, rather than keeping yesterday's text. The input is the collect step's output for
+# pipelines/daily-brief.yaml on 2026-11-14 (a Saturday) in Europe/Paris.
+schema_version: 1
+description: Nothing planned gives an empty ranking and a one-line note.
+budget: { usd: 0.15, tokens_out: 4000 }
+targets:
+  note.replace_owned_block: Daily/2026-11-14.assistant.md
+input:
+  - source: calendar.events
+    params: {"start": "2026-11-14", "days": 2, "timezone": "Europe/Paris", "partial": true}
+    data:
+      window: {"start": "2026-11-14T00:00:00+01:00", "end": "2026-11-16T00:00:00+01:00", "timezone": "Europe/Paris", "days": 2}
+      complete: true
+      truncated: 0
+      calendars:
+        - {"name": "calendar-1", "ok": true, "complete": true, "events": 0, "skipped": 0, "truncated": 0, "warnings": 0}
+      events: []
+  - source: obsidian.open_tasks
+    params: {"limit": 100}
+    data:
+      tasks: []
+      more: 0
+      output_cut: false
+      open_statuses: " /"
+      withheld: []
+      withheld_more: 0
+      hidden: []
+      hidden_more: 0
+      horae_output: 0
+      edited_horae_tasks: []
+      edited_more: 0
+      not_open_statuses: {}
+      complete: true
+      truncated: false
+      skipped: []
+      index: "ok"
+  - source: github.review_requests
+    params: {"today": "2026-11-14", "orgs": ["Acme-Org"], "max_items": 20, "due_in_business_days": 0}
+    data:
+      kind: "review_requested"
+      day: "2026-11-14"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.assigned
+    params: {"today": "2026-11-14", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true}
+    data:
+      kind: "assigned"
+      day: "2026-11-14"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+  - source: github.mentions
+    params: {"today": "2026-11-14", "orgs": ["Acme-Org"], "max_items": 20, "skip_covered": true, "due_in_days": 0}
+    data:
+      kind: "mentioned"
+      day: "2026-11-14"
+      items: []
+      truncated: false
+      skipped: 0
+      partial: false
+      errors: 0
+expect:
+  schema_valid: true
+  assertions:
+    - { pointer: /output/ranked, length: 0 }
+    - { pointer: /intents/0/content, contains: Nothing planned today. }
+  intent_counts: { note.replace_owned_block: 1 }
+  guard: pass

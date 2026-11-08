@@ -1,0 +1,58 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "One thing is overdue, a stand-up and a review today.\nThe calendar and GitHub lists are incomplete.\n\n## Now\n\n- Work on widgets #42: cache misses on cold start (due Nov 6)\n- 09:30 Team stand-up\n- Review api #7: export pagination fix\n- Book the train tickets\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "index": 0,
+        "kind": "issue",
+        "source": "github.assigned",
+        "when": "overdue"
+      },
+      {
+        "index": 0,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      }
+    ],
+    "summary": "One thing is overdue, a stand-up and a review today."
+  },
+  "request": {
+    "input_sha256": "f0b223f0ac34049a1ee4ecb045377cf2ff605653271e07334fe925d59894c353",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 2100,
+    "tokens_out": 140,
+    "usd": 0.0
+  }
+}

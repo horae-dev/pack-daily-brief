@@ -1,0 +1,61 @@
+[project]
+name = "horae-pack-daily-brief"
+version = "0.1.0"
+description = "Horae pipeline pack: the morning note pipeline and its rank-and-word skill."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+# A pack ships data files (plugin.yaml, pipelines/, skills/), not Python code: there is
+# nothing to build or install. The Python environment only exists to check those files
+# with the core's own loaders, CLI and test helpers.
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "horae",
+    "mypy>=2.4",
+    "pre-commit>=4.7",
+    "pytest>=9.1",
+    "ruff>=0.17",
+    "types-pyyaml>=6",
+]
+
+# horae is not on PyPI yet: it comes from the core repository's main branch. uv.lock pins the
+# exact commit (CI checks the lock, so checks are reproducible); Renovate's weekly lock file
+# maintenance moves it to the latest main, or run `uv lock --upgrade-package horae`.
+[tool.uv.sources]
+horae = { git = "https://github.com/horae-dev/horae", branch = "main" }
+
+[tool.uv]
+package = false
+required-version = ">=0.13"
+exclude-newer = "7 days"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "S", "PT"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+strict = true
+# Not scripts/: sync_recordings.py is a manual helper on the core's private eval internals,
+# kept out of CI so a core refactor of them never breaks the pack's checks.
+files = ["tests"]
+mypy_path = "tests"
+python_version = "3.12"
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+addopts = "-ra --strict-config --strict-markers"
+xfail_strict = true
+filterwarnings = ["error"]

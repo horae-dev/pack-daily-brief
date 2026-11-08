@@ -1,0 +1,66 @@
+# The rank-and-word skill of the daily-brief pipeline (schemas decision 39).
+#
+# The input view is everything the model sees: the collect step's output is a list of
+# {source, params, data}, one per source, and the paths below keep only what ranking and
+# wording need. Not shown: links and URLs, note paths and lines, event locations,
+# descriptions and calendar names, every other parameter. A missing field is not an error, so
+# a source that is not installed simply contributes nothing.
+#
+# - `data.partial`, `data.truncated`, `data.complete`, `data.errors`: whether a source's list
+#   is complete (calendar: `complete`, `truncated`; github: `partial`, `truncated`, `errors`;
+#   obsidian.open_tasks: `complete`, `truncated`), so the note can say when it is not.
+#   obsidian.open_tasks also says what it left out: `more` (tasks past its `limit`),
+#   `output_cut`, and one entry per task it `withheld` (a duplicate or not known unique key)
+#   or `hidden` (Horae's own output it could not verify); only the reason of each is viewed,
+#   as a count, never the task's key, note or line.
+# - `data.tasks[].snoozed`, `data.tasks[].snoozed_until`: a task snoozed until a later moment
+#   (a `⏰` reminder in the future); the prompt leaves it out unless it is due today.
+#   `edited` (a Horae task edited in Obsidian) is not viewed: it changes nothing in the note.
+# - `data.tasks[].source_fingerprint` (obsidian.open_tasks): set on a task Horae created from
+#   another source. The view cannot filter by value, so the prompt leaves out the tasks whose
+#   fingerprint starts with `github:` (the GitHub item itself is listed by its source).
+#
+# Every string of the viewed input is scanned for the instance's vocabulary before a cloud
+# model (schemas decision 47 B); `class: free_text` marks the text written by other people
+# (it is counted in the request's de-identification summary, not scanned differently).
+#
+# TODO(horae-dev/horae#128): add `links: none` once the core supports it, so the guard
+# refuses every link and URL in the note (the brief needs none; today a URL that is in a
+# viewed title passes the guard).
+name: daily-brief/rank-and-word
+version: 0.1.0
+description: Rank the morning's tasks, reviews and events and word a short note.
+input_view:
+  "[].source":
+  "[].params.today":
+  "[].params.start":
+  "[].data.kind":
+  "[].data.partial":
+  "[].data.truncated":
+  "[].data.complete":
+  "[].data.errors":
+  "[].data.more":
+  "[].data.output_cut":
+  "[].data.withheld[].reason":
+  "[].data.hidden[].reason":
+  "[].data.items[].repo":
+  "[].data.items[].number":
+  "[].data.items[].title": { class: free_text }
+  "[].data.items[].due":
+  "[].data.tasks[].description": { class: free_text }
+  "[].data.tasks[].due":
+  "[].data.tasks[].scheduled":
+  "[].data.tasks[].start":
+  "[].data.tasks[].priority":
+  "[].data.tasks[].snoozed":
+  "[].data.tasks[].snoozed_until":
+  "[].data.tasks[].source_fingerprint":
+  "[].data.events[].title": { class: free_text }
+  "[].data.events[].start":
+  "[].data.events[].end":
+  "[].data.events[].all_day":
+  "[].data.events[].status":
+prompt: prompt.md
+output_schema: output.schema.json
+intents:
+  note.replace_owned_block: 1
