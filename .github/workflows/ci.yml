@@ -96,14 +96,17 @@ jobs:
           cache-python: true
       - run: uv sync
       # Offline: each case's recorded answer through the real render, validator and guard.
-      # The JSON report also says which recordings are stale (made for another prompt,
-      # schema or view): `horae eval` only warns about those, so fail on them here.
+      # `horae eval` only warns about a stale recording (made for another prompt, schema or
+      # view), so the JSON report is gated here: at least one case, every case `pass`, and no
+      # failed, errored or stale one. The exit code of `horae eval` counts too.
       - name: Every case passes, none is stale
         run: |
           set -euo pipefail
-          uv run horae eval daily-brief/rank-and-word --plugin-dir . --json > "${RUNNER_TEMP}/eval.json"
+          status=0
+          uv run horae eval daily-brief/rank-and-word --plugin-dir . --json > "${RUNNER_TEMP}/eval.json" || status=$?
           jq -r '.cases[] | "\(.status)  \(.case) [\(.backend)] guard=\(.guard) stale=\(.stale | join(","))"' "${RUNNER_TEMP}/eval.json"
-          jq -e '.summary.cases > 0 and .summary.failed == 0 and .summary.errors == 0 and .summary.stale == 0' "${RUNNER_TEMP}/eval.json" > /dev/null
+          jq -e '.mode == "offline" and .summary.cases > 0 and .summary.passed == .summary.cases and .summary.failed == 0 and .summary.errors == 0 and .summary.stale == 0 and all(.cases[]; .status == "pass" and (.stale | length) == 0)' "${RUNNER_TEMP}/eval.json" > /dev/null
+          exit "${status}"
 
   gitleaks:
     name: Secret scan (gitleaks)

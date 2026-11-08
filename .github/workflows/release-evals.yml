@@ -1,0 +1,90 @@
+name: Release evals
+
+# The live eval: the golden cases sent to the real model, once per release tag. It spends
+# money, so it never runs on a pull request or a push to a branch (the offline eval in ci.yml
+# does that), and its job waits for the required reviewer of the `evals` environment, which
+# is also what holds the `ANTHROPIC_API_KEY` secret.
+on:
+  push:
+    tags: ["v*"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  UV_LOCKED: "1"
+  UV_PYTHON_PREFERENCE: only-managed
+  # renovate: datasource=github-releases depName=astral-sh/uv
+  UV_VERSION: 0.13.6
+  # What the live eval is run against, and what it may spend (US dollars, whole eval): the
+  # core refuses a case whose worst case does not fit what is left of EVAL_MAX_USD
+  # (`horae eval --max-usd`). The prices are the ones of the model, per million tokens.
+  EVAL_MODEL: claude-sonnet-5-5
+  EVAL_PRICE_IN: "3"
+  EVAL_PRICE_OUT: "15"
+  EVAL_MAX_USD: "1.00"
+
+jobs:
+  eval:
+    name: Live eval (horae eval --live)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Required reviewer; holds ANTHROPIC_API_KEY. Not reachable from a pull request.
+    environment: evals
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: ${{ env.UV_VERSION }}
+          cache-python: true
+      - run: uv sync
+      - name: Send the golden cases to the model
+        env:
+          # Only this step sees the key.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EVAL_OUT: ${{ runner.temp }}/live-eval-report.json
+        run: ./scripts/live-eval.sh
+      # The report is attached even when a case failed: that is when it is most useful.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: live-eval-report
+          path: ${{ runner.temp }}/live-eval-report.json
+          if-no-files-found: error
+          retention-days: 30
+
+  attach:
+    name: Attach the report to the release
+    needs: eval
+    if: ${{ !cancelled() && needs.eval.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # The only job that can write, and it has no model key and runs no pack code.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: live-eval-report
+          path: report
+      - name: Upload the report to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          asset="live-eval-report-${TAG}.json"
+          cp report/live-eval-report.json "${asset}"
+          # A tag push does not create a release: make a draft to publish when there is none.
+          if ! gh release view "${TAG}" > /dev/null 2>&1; then
+            gh release create "${TAG}" --draft --verify-tag --title "${TAG}" --generate-notes
+          fi
+          gh release upload "${TAG}" "${asset}" --clobber

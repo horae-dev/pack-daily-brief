@@ -1,0 +1,154 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "Three things are overdue, and the day is full: an offsite week, three meetings and three reviews.\nThe list is cut to the 20 most urgent items.\n\n## Now\n\n- Pay the parking fine (due Nov 10)\n- Work on widgets #40: focus lost after a resize (due Nov 11)\n- Update the passport photo (due Nov 13)\n- All day: Offsite week (until Nov 20)\n- 09:00 Sprint review\n- 11:30 Customer call\n- 15:00 Design critique (tentative)\n- Review api #21: rate limiting for the export\n- Review web #8: sidebar overflow fix\n- Review docs #15: setup guide rewrite\n- Prepare the demo script\n- Reply to the recruiter\n- Tidy the shared drive\n- Answer the mention in web #9: supported browsers\n- Answer the mention in docs #12: changelog typo\n\n## Tomorrow\n\n- 09:30 Release sync\n- 14:00 1:1 with Sam\n- Order the team gifts\n- Book the venue\n\n## Later\n\n- Plan the retrospective (due Nov 23)\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "index": 0,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "overdue"
+      },
+      {
+        "index": 0,
+        "kind": "issue",
+        "source": "github.assigned",
+        "when": "overdue"
+      },
+      {
+        "index": 1,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "overdue"
+      },
+      {
+        "index": 0,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 2,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 3,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 2,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 2,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      },
+      {
+        "index": 3,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      },
+      {
+        "index": 4,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "mention",
+        "source": "github.mentions",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "mention",
+        "source": "github.mentions",
+        "when": "today"
+      },
+      {
+        "index": 4,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "tomorrow"
+      },
+      {
+        "index": 5,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "tomorrow"
+      },
+      {
+        "index": 5,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "tomorrow"
+      },
+      {
+        "index": 6,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "tomorrow"
+      },
+      {
+        "index": 7,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "later"
+      }
+    ],
+    "summary": "Three overdue items and a full day of meetings and reviews; the list is cut to the 20 most urgent."
+  },
+  "request": {
+    "input_sha256": "65e17f557b2c38bd7772721232a84749dd65637f855400ef3b489f37c26f56ff",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 5400,
+    "tokens_out": 780,
+    "usd": 0.0
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "backend": "anthropic",
+  "model": "claude-fixture-1",
+  "output": {
+    "intents": [
+      {
+        "block": "daily-brief",
+        "content": "One overdue task, a lunch and a team meeting today, and a dentist visit tomorrow.\n\n## Now\n\n- Send the invoice to \u0141ukasz (due Nov 14)\n- 12:30 D\u00e9jeuner avec Zo\u00eb\n- 16:00 R\u00e9union d'\u00e9quipe \u00e0 S\u00e3o Paulo (visio)\n- Review api #33: UTF-8 encoding of names\n- Book the train to Z\u00fcrich\n\n## Tomorrow\n\n- 09:00 \u6b6f\u533b\u8005\u306e\u4e88\u7d04\n- Prepare the quarterly report (\u041f\u0440\u0438\u0433\u043e\u0442\u043e\u0432\u0438\u0442\u044c \u043e\u0442\u0447\u0451\u0442 \u0437\u0430 \u043a\u0432\u0430\u0440\u0442\u0430\u043b)\n\n## Later\n\n- Read \u00ab Les Mis\u00e9rables \u00bb\n",
+        "type": "note.replace_owned_block"
+      }
+    ],
+    "ranked": [
+      {
+        "index": 0,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "overdue"
+      },
+      {
+        "index": 0,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "today"
+      },
+      {
+        "index": 0,
+        "kind": "review",
+        "source": "github.review_requests",
+        "when": "today"
+      },
+      {
+        "index": 1,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "today"
+      },
+      {
+        "index": 2,
+        "kind": "event",
+        "source": "calendar.events",
+        "when": "tomorrow"
+      },
+      {
+        "index": 2,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "tomorrow"
+      },
+      {
+        "index": 3,
+        "kind": "task",
+        "source": "obsidian.open_tasks",
+        "when": "undated"
+      }
+    ],
+    "summary": "One overdue task, a busy lunch-to-evening today and a dentist visit tomorrow."
+  },
+  "request": {
+    "input_sha256": "d0598e228d046e069a2753918bf2660a5bee3cfab1509c9bbaa3e7b2a2311ee8",
+    "schema_sha256": "33fbe67b56c1e3ecc0be4a7fd62d546844a095fb793872bcaba910e581f5e123",
+    "system_sha256": "2c216cf6c2bae063fdd0ef3638be28ed415ba3e8a564e676b6fd89efd1e281d7"
+  },
+  "schema_version": 1,
+  "skill": "daily-brief/rank-and-word",
+  "skill_digest": "ed7236b337f81be4cce43c874e1767a3c879432b580b189735a0b0c4b5698d1b",
+  "skill_version": "0.1.0",
+  "stop_reason": "end_turn",
+  "usage": {
+    "cache_read_tokens": null,
+    "cache_write_tokens": null,
+    "priced": false,
+    "tokens_in": 2300,
+    "tokens_out": 330,
+    "usd": 0.0
+  }
+}
