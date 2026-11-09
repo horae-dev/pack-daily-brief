@@ -44,6 +44,7 @@ from horae.engine.testing import FixturePlugins
 from horae.evals import LoadedCase
 from horae.llm.backends import FACTORIES
 from horae.llm.base import CompletionResult, ModelBackends, ProviderBackend
+from horae.llm.replay import ReplayBackend
 from horae.runner import Ports, Runner
 from horae.secrets import SecretResolver
 from horae.skills import DirectorySkills
@@ -170,41 +171,14 @@ def fixture_plugins(
     return plugins
 
 
-class Recorded:
-    """A provider backend that renders with the real Anthropic backend and answers with a
-    recorded result (what `horae eval` does offline). It counts what it was asked to send."""
-
-    def __init__(self, inner: ProviderBackend, result: CompletionResult) -> None:
-        self._inner, self._result = inner, result
-        self.sent: list[Mapping[str, Any]] = []
-
-    @property
-    def name(self) -> Any:
-        return self._inner.name
-
-    @property
-    def may_write_cache(self) -> bool:
-        return getattr(self._inner, "may_write_cache", False) is True
-
-    def render(self, completion: Any) -> dict[str, Any]:
-        return self._inner.render(completion)
-
-    async def send(self, payload: Mapping[str, Any], timeout_s: float) -> CompletionResult:
-        self.sent.append(payload)
-        return self._result
-
-    async def aclose(self) -> None:
-        await self._inner.aclose()
-
-
 def recorded_model(
     instance: Instance, recorded: RecordedResponse
-) -> tuple[ModelBackends, list[Recorded]]:
-    built: list[Recorded] = []
+) -> tuple[ModelBackends, list[ReplayBackend]]:
+    built: list[ReplayBackend] = []
     result = CompletionResult(recorded.output, recorded.usage, recorded.stop_reason)
 
     def factory(name: str, spec: ModelAlias, secrets: SecretResolver) -> ProviderBackend:
-        backend = Recorded(FACTORIES[spec.backend](name, spec, secrets), result)
+        backend = ReplayBackend(FACTORIES[spec.backend](name, spec, secrets), result)
         built.append(backend)
         return backend
 
@@ -366,9 +340,10 @@ def test_an_unlisted_owner_is_filtered_out_by_orgs(
     assert len(morning.tasks.tasks) == len(morning.github_tasks()) == 3
 
 
-def test_without_orgs_an_unlisted_owner_fails_the_run(tmp_path: Path) -> None:
+def test_without_orgs_an_unlisted_owner_is_skipped(tmp_path: Path) -> None:
     """Why the pipeline sets `orgs`: the same item, collected, is a task whose link no
-    `link_prefix` covers, and the run fails (`intent_unrouted`) rather than guess."""
+    `link_prefix` covers; it is left out (an `intent_skipped` violation, core decision 60 C):
+    no task is created, but the brief itself is still written."""
     root = tmp_path / "instance"
     make_instance(root)
     path = root / "pipelines" / f"{PIPELINE}.yaml"
@@ -386,12 +361,10 @@ def test_without_orgs_an_unlisted_owner_fails_the_run(tmp_path: Path) -> None:
             without_orgs=True,
         )
         record = morning.run()
-    assert record.status == "failed"
-    collect = record.steps[0]
-    assert collect.error is not None
-    assert collect.error.kind == "intent_unrouted", collect.error
+    assert record.status == "ok"
+    assert any(v.kind == "intent_skipped" for v in record.violations)
     assert morning.tasks.tasks == {}
-    assert not morning.note.exists()
+    assert morning.note.exists()
 
 
 def test_an_unchanged_morning_makes_no_second_llm_call(
