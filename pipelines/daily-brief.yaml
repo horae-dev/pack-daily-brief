@@ -24,7 +24,7 @@ steps:
       - obsidian.open_tasks: { limit: 100 }
       # Reviews and mentions are due the day they are collected; an assignment is due on its
       # milestone's date. `orgs` keeps only the owners `link_prefix` covers: an item of
-      # another owner would be unrouted and fail the run.
+      # another owner would be skipped (an `intent_skipped` violation).
       - github.review_requests:
           { today: "{{date}}", orgs: [Acme-Org], max_items: 20, due_in_business_days: 0 }
       - github.assigned: { today: "{{date}}", orgs: [Acme-Org], max_items: 20, skip_covered: true }
@@ -43,6 +43,6 @@ steps:
       - obsidian.write_note: { path: "Daily/{{date}}.assistant.md", mode: replace-owned }
       # The github sources' tasks (plugin-obsidian's task sink, which appends them to its
       # owned `Tasks.assistant.md`; `note:` changes the file). A task's link is routed only
-      # under a trusted `link_prefix`; without this entry, or with a link outside its prefix,
-      # the task is unrouted and the run fails.
+      # under a trusted `link_prefix`; a task whose link is outside its prefix is skipped
+      # (an `intent_skipped` violation, core decision 60).
       - obsidian.write_task: { mode: tasks, link_prefix: "https://github.com/Acme-Org/" }

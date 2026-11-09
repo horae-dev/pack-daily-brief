@@ -72,7 +72,7 @@ def test_the_sources_are_bounded_and_scoped_to_the_linked_owner() -> None:
     assert set(github) == {"github.review_requests", "github.assigned", "github.mentions"}
     for ref, params in github.items():
         # Only the owner the tasks entry's link_prefix covers: another owner's item would be
-        # unrouted and fail the run.
+        # skipped (an `intent_skipped` violation, core decision 60).
         assert params["orgs"] == [OWNER], ref
         assert params["max_items"] == 20, ref
         assert params["today"] == "{{date}}", ref
@@ -88,8 +88,8 @@ def test_the_note_entry_binds_todays_assistant_note() -> None:
     params = entries["obsidian.write_note"]
     assert params == {"path": "Daily/{{date}}.assistant.md", "mode": "replace-owned"}
     assert "note.replace_owned_block" in ACT_MODES[params["mode"]]
-    # The github sources' task.create intents need a tasks entry, else they are unrouted and
-    # fail the run; their links are routed only under its trusted link_prefix.
+    # The github sources' task.create intents need a tasks entry to be applied; their links
+    # are routed only under its trusted link_prefix (others are skipped, core decision 60).
     assert entries["obsidian.write_task"] == {
         "mode": "tasks",
         "link_prefix": f"https://github.com/{OWNER}/",
