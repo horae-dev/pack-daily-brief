@@ -72,7 +72,7 @@ steps:
       - obsidian.open_tasks: { limit: 100 }
       # Reviews and mentions are due the day they are collected; an assignment is due on its
       # milestone's date. `orgs` keeps only the owners `link_prefix` covers: an item of
-      # another owner would be unrouted and fail the run.
+      # another owner would be skipped (an `intent_skipped` violation).
       - github.review_requests:
           { today: "{{date}}", orgs: [Acme-Org], max_items: 20, due_in_business_days: 0 }
       - github.assigned: { today: "{{date}}", orgs: [Acme-Org], max_items: 20, skip_covered: true }
@@ -91,8 +91,8 @@ steps:
       - obsidian.write_note: { path: "Daily/{{date}}.assistant.md", mode: replace-owned }
       # The github sources' tasks (plugin-obsidian's task sink, which appends them to its
       # owned `Tasks.assistant.md`; `note:` changes the file). A task's link is routed only
-      # under a trusted `link_prefix`; without this entry, or with a link outside its prefix,
-      # the task is unrouted and the run fails.
+      # under a trusted `link_prefix`; a task whose link is outside its prefix is skipped
+      # (an `intent_skipped` violation, core decision 60).
       - obsidian.write_task: { mode: tasks, link_prefix: "https://github.com/Acme-Org/" }
 ```
 
@@ -108,7 +108,7 @@ The note is written only when the whole run succeeds. A missing note (or one sti
 
 - **a source failed** (GitHub rate limited, the vault unreadable, every calendar down): the run is `degraded`, the `act` step is skipped and nothing is written from partial data. One calendar failing out of several does **not** stop the brief: `partial: true` keeps the others' events and the note says the calendar list is incomplete (a partial brief beats no brief). GitHub's own `partial` and `truncated` results are flagged the same way;
 - **the model's answer was refused** (schema, or the action guard): the step is `degraded` and nothing is written;
-- **applying failed**, for example a GitHub task whose link no `link_prefix` covers (`intent_unrouted`), or note content carrying a block marker: the run `failed` and nothing was applied.
+- **applying failed**, for example note content carrying a block marker: the run `failed` and nothing was applied.
 
 ### The skill
 
@@ -204,16 +204,15 @@ Decisions taken with the maintainer ("go with what you think is good for the pro
 11. **One wording.** `ranked` holds references (`kind`, `when`, `source`, `index`), not lines; the model words each item once, in the note.
 12. **Property checks.** The golden cases assert properties (lengths, references, contained words) instead of exact outputs, so a live recording can pass them; the hostile payloads are in fields the view shows (titles, task descriptions as plugin-obsidian parses them).
 13. **Ranking rules.** Tentative events are marked, multi-day events are listed while they last, a task's `due` before today is overdue while a past `scheduled` date is today's work, and a task whose `start` is after today is left out. The calendar source already drops cancelled events and reads only today and tomorrow, so the prompt has no rule for those.
-14. **CI uses only public core interfaces.** Staleness is checked from `horae eval --json` (`summary.stale`); `scripts/sync_recordings.py` (private eval internals) is a manual helper, neither run nor type-checked in CI.
+14. **CI uses only public core interfaces.** Staleness is checked from `horae eval --json` (`summary.stale`); `scripts/sync_recordings.py` (a manual helper on the public `horae.evals.request_digest`) is not run in CI.
 15. **Earlier choices kept.** The model writes the whole block (no core transform renders `ranked`); no `transform` step (no plugin provides one); no `notify` step (the digest belongs to `pack-reminders`); the day comes from the sources' trusted params (`{{date}}`), since prompts have no template syntax.
 
 ### Core gaps
 
 - **Installing a pack**: nothing copies a pack's `provides.pipelines` into an instance (M4, `horae plugin add`).
-- **`horae run` with a recorded LLM**: the end-to-end test drives the `Runner` in Python with a replaying backend; a public replay backend would let packs test through the CLI.
 - **Fixture plugins under real tool names**: the test uses `horae.engine.testing.FixturePlugins`; the built-in `fixture-source` only provides `fixture-source.serve`.
 - **No value filter in the input view** (decision 4).
-- **`horae eval --record` writes only passing answers**, and the digest helpers used by `scripts/sync_recordings.py` are private.
+- **`horae eval --record` writes only passing answers.**
 
 ## Development
 
@@ -233,7 +232,7 @@ uv run horae eval daily-brief/rank-and-word --plugin-dir . --json   # summary.st
 - `tests/test_pack_files.py`: the manifest, pipeline and skill through the core's contracts and loaders (the pipeline also loaded into an instance as `horae run` reads it), the output schema accepted by every backend's structured output, and the pipeline's parameters (owner, bounds, due offsets, `partial`).
 - `tests/test_golden.py`: `horae eval --json` offline over every case (real render, production validator, action guard): all pass, none stale, and the guard's result on each obeyed injection.
 - `tests/test_workflows.py`: the workflows' rules (offline eval gated on the summary; the live eval only on `v*` tags, behind `evals`, with the one write permission on a job without the key; actions pinned; no expression in `run:`).
-- `tests/test_pipeline_e2e.py`: the pipeline through the core's `Runner` with fixture plugins standing in for calendar, obsidian and github (the core's in-memory `FixturePlugins`), the golden case's answer replayed behind the real Anthropic render, and the note written to a temporary vault by the core's local sink. Also: linked GitHub tasks routed by `link_prefix`, an unlisted owner filtered by `orgs` (and failing the run without it), a second run makes no LLM call, a dry run writes nothing, the budget at a Sonnet-class price, and what each obeyed injection does today.
+- `tests/test_pipeline_e2e.py`: the pipeline through the core's `Runner` with fixture plugins standing in for calendar, obsidian and github (the core's in-memory `FixturePlugins`), the golden case's answer replayed by the core's public `ReplayBackend` behind the real Anthropic render, and the note written to a temporary vault by the core's local sink. Also: linked GitHub tasks routed by `link_prefix`, an unlisted owner filtered by `orgs` (and failing the run without it), a second run makes no LLM call, a dry run writes nothing, the budget at a Sonnet-class price, and what each obeyed injection does today.
 - `scripts/sync_recordings.py` (manual helper, not run in CI): refreshes the request digests of the **hand-written** answers after a prompt, schema or view change. It never rewrites a model's recording (any `model` but `claude-fixture-1`): it reports it stale, to be re-recorded.
 
 A new golden case is a `evals/<case>.yaml` (the step input **before** the view: the `collect` output, `[{source, params, data}]`) and its answer in `evals/recorded/anthropic/<case>.json`.

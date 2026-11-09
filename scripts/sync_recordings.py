@@ -13,11 +13,8 @@ leaving the output, usage, model and stop reason as they are.
     uv run python scripts/sync_recordings.py          # rewrite stale digests
     uv run python scripts/sync_recordings.py --check  # exit 1 if any is stale
 
-A **manual helper only**: it uses private helpers of `horae.evals._harness` (the eval
-harness's own rendering path), which the core may change at any time, so neither CI nor the
-tests run or type-check it. CI checks staleness with the public `horae eval --json` report
-instead (`summary.stale`). If a core change breaks this script, fix it or refresh the
-digests another way; the checks of the pack do not depend on it.
+A **manual helper**: it uses only the core's public `horae.evals.request_digest`. CI checks
+staleness with the `horae eval --json` report (`summary.stale`), not with this script.
 """
 
 import argparse
@@ -26,20 +23,13 @@ from pathlib import Path
 
 import yaml
 from horae.contracts.plugin import PluginManifest
-from horae.evals import evals_dir, load_cases, offline_alias, write_recorded
-from horae.evals._harness import (
-    DEFAULT_TIMEOUT_S,
-    CaseResult,
+from horae.evals import (
     SkillUnderEval,
-    _offline_backends,
-    deidentify,
-    recorded_request,
-    request_for,
-    viewed_input,
+    evals_dir,
+    load_cases,
+    request_digest,
+    write_recorded,
 )
-from horae.llm.backends import FACTORIES
-from horae.llm.deid import Deidentifier
-from horae.llm.validate import validate_output
 from horae.skills import load_skill
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -64,19 +54,10 @@ def sync(root: Path = ROOT, *, check: bool = False) -> list[str]:
         for loaded in load_cases(folder):
             for backend, recorded in sorted(loaded.recorded.items()):
                 label = f"{name}:{loaded.name}:{backend}"
-                result = CaseResult(loaded.name, backend)
-                viewed = viewed_input(sue, loaded, result)
-                alias = "eval"
-                spec = offline_alias(backend, recorded.model)
-                ok, pseudo = deidentify(sue, Deidentifier({alias: spec}), alias, viewed, result)
-                if viewed is None or not ok:
-                    raise SystemExit(f"{label}: {result.error}")
-                backends = _offline_backends(alias, spec, recorded, FACTORIES, validate_output)
-                request = request_for(sue, alias, loaded, viewed, DEFAULT_TIMEOUT_S, pseudo)
-                rendered = backends.render(request)
+                request = request_digest(sue, loaded, backend=backend, model=recorded.model)
                 fresh = recorded.model_copy(
                     update={
-                        "request": recorded_request(rendered),
+                        "request": request,
                         "skill_digest": skill.digest,
                         "skill_version": skill.version,
                     }
