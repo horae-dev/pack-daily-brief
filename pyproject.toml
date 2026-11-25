@@ -1,6 +1,6 @@
 [project]
 name = "horae-pack-daily-brief"
-version = "0.1.0"
+version = "0.1.1"
 description = "Horae pipeline pack: the morning note pipeline and its rank-and-word skill."
 readme = "README.md"
 license = "Apache-2.0"
@@ -30,7 +30,10 @@ horae = { git = "https://github.com/horae-dev/horae", branch = "main" }
 [tool.uv]
 package = false
 required-version = ">=0.13"
-exclude-newer = "7 days"
+# No exclude-newer here: the 7-day cooldown on new releases is Renovate's minimumReleaseAge
+# (renovate.json), as in the plugins, where `horae plugin add` runs `uv sync --locked
+# --no-config` and would not match a lock resolved with it. `package = false`: the
+# environment is a dev-only virtual project, the pack itself is never installed through uv.
 
 [tool.ruff]
 line-length = 100
