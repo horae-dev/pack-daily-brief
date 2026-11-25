@@ -4,7 +4,7 @@
 
 Horae pipeline pack: the morning note pipeline and its rank-and-word skill.
 
-> 🚧 **Early (0.1.0, unreleased).** The plugins the pipeline needs are merged (plugin-obsidian's `obsidian.open_tasks` source and `obsidian.write_task` sink, [plugin-obsidian#4](https://github.com/horae-dev/plugin-obsidian/issues/4)), see [What each source needs](#what-each-source-needs) for what is released. The pipeline and the skill pass their checks against the core's `main`, with stand-ins of the plugins in their real shapes (plugin-obsidian's data is the output of its own code). The wording of the note has **not been judged by the maintainer yet**: the golden answers are hand-written, not recorded from a model (see [Wording quality](#wording-quality)).
+> 🚧 **Early (0.1.1, unreleased).** The plugins the pipeline needs are merged (plugin-obsidian's `obsidian.open_tasks` source and `obsidian.write_task` sink, [plugin-obsidian#4](https://github.com/horae-dev/plugin-obsidian/issues/4)), see [What each source needs](#what-each-source-needs) for what is released. The pipeline and the skill pass their checks against the core's `main`, with stand-ins of the plugins in their real shapes (plugin-obsidian's data is the output of its own code). The wording of the note has **not been judged by the maintainer yet**: the golden answers are hand-written, not recorded from a model (see [Wording quality](#wording-quality)).
 
 ## What it does
 
@@ -129,7 +129,7 @@ The note is written only when the whole run succeeds. A missing note (or one sti
    ```yaml
    plugins:
      pack-daily-brief:
-       version: 0.1.0
+       version: 0.1.1
        repo: https://github.com/horae-dev/pack-daily-brief.git
        commit: "<the 40-hex commit you cloned>"
        permissions:

@@ -3,7 +3,7 @@
 # secret or path. Its one intent is the note block the skill proposes; the obsidian plugin's
 # sink applies it.
 name: pack-daily-brief
-version: 0.1.0
+version: 0.1.1
 horae: ">=0,<0.2"
 description: The morning note pipeline and its rank-and-word skill.
 license: Apache-2.0
