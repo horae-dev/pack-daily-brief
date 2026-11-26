@@ -4,7 +4,9 @@
 
 Horae pipeline pack: the morning note pipeline and its rank-and-word skill.
 
-> 🚧 **Early (0.1.1, unreleased).** The plugins the pipeline needs are merged (plugin-obsidian's `obsidian.open_tasks` source and `obsidian.write_task` sink, [plugin-obsidian#4](https://github.com/horae-dev/plugin-obsidian/issues/4)), see [What each source needs](#what-each-source-needs) for what is released. The pipeline and the skill pass their checks against the core's `main`, with stand-ins of the plugins in their real shapes (plugin-obsidian's data is the output of its own code). The wording of the note has **not been judged by the maintainer yet**: the golden answers are hand-written, not recorded from a model (see [Wording quality](#wording-quality)).
+**Docs:** <https://horae-dev.github.io/docs/plugins/pack-daily-brief/>
+
+> 🚧 **Early (0.1.1, listed in the [marketplace](https://github.com/horae-dev/marketplace)).** The plugins the pipeline needs are released and listed too, see [What each source needs](#what-each-source-needs). The pipeline and the skill pass their checks against the core's `main`, with stand-ins of the plugins in their real shapes (plugin-obsidian's data is the output of its own code). The wording of the note has **not been judged by the maintainer yet**: the golden answers are hand-written, not recorded from a model (see [Wording quality](#wording-quality)).
 
 ## What it does
 
@@ -122,39 +124,38 @@ The note is written only when the whole run succeeds. A missing note (or one sti
 
 ## Install
 
-`horae plugin add` (milestone M4) does not exist yet, so for now by hand, in your instance:
+```sh
+horae plugin add pack-daily-brief@0.1.1
+```
 
-1. **The pack.** Clone it at a commit into `<instance>/plugins/pack-daily-brief/` and pin it in `horae.lock`:
+`horae plugin add` shows the permissions (intent `note.replace_owned_block` only) and copies the
+pipeline to `<instance>/pipelines/pack-daily-brief/daily-brief.yaml`. Then:
 
-   ```yaml
-   plugins:
-     pack-daily-brief:
-       version: 0.1.1
-       repo: https://github.com/horae-dev/pack-daily-brief.git
-       commit: "<the 40-hex commit you cloned>"
-       permissions:
-         network: []
-         secrets: []
-         paths: {}
-         intents: [note.replace_owned_block]
-   ```
-
-2. **The pipeline.** Copy `pipelines/daily-brief.yaml` into `<instance>/pipelines/` (the core does not install a pack's pipelines yet). Replace `Acme-Org` with your GitHub owner, and edit the rest freely: the trigger, the sources you have, the note path.
-3. **A model alias** named `default` in `horae.yaml` (or change `model:` in your copy), for example `default: { backend: anthropic, model: <model>, secret: ANTHROPIC_API_KEY, price: {...} }`. With a price, the step's budget (`usd: 0.15`) is checked before each call.
-4. **The source and sink plugins** below, each installed and pinned the same way.
-5. Check with `horae doctor`, try `horae run daily-brief --dry-run` (shows the diff, writes nothing), then `horae run daily-brief`.
+1. **The pipeline names a placeholder GitHub owner**, `Acme-Org` (in the three `orgs` and in
+   `link_prefix`). The installed copy is pinned by its SHA-256 in `horae.lock` and the loader
+   refuses an edited one, so as installed the GitHub sources keep only `Acme-Org`'s items and the
+   note has no GitHub work. Setting your owner is [#10](https://github.com/horae-dev/pack-daily-brief/issues/10).
+2. **A model alias** named `default` in `horae.yaml` (the pipeline's `model:`), for example
+   `default: { backend: anthropic, model: <model>, secret: ANTHROPIC_API_KEY, price: {...} }`.
+   With a price, the step's budget (`usd: 0.15`) is checked before each call.
+3. **The source and sink plugins** below, each with `horae plugin add` (the vault granted to
+   obsidian with `--allow-path`).
+4. **List the pack** under `plugins:` in `horae.yaml` (`pack-daily-brief: {}`): its pipelines
+   run only once it is listed.
+5. Check with `horae doctor`, try `horae run daily-brief --dry-run` (shows the diff, writes
+   nothing), then `horae run daily-brief`.
 
 ## What each source needs
 
 | Entry | Plugin | Needs | Status |
 |---|---|---|---|
-| `calendar.events` | [plugin-calendar](https://github.com/horae-dev/plugin-calendar) (`main`) | secret `CALENDAR_ICS_URLS` (your ICS links); hosts `calendar.google.com`, `calendar.proton.me` | merged ([plugin-calendar#6](https://github.com/horae-dev/plugin-calendar/pull/6)), not released |
-| `github.review_requests`, `github.assigned`, `github.mentions` | [plugin-github](https://github.com/horae-dev/plugin-github) 0.2.0 (tasks with links; needs a core at horae-dev/horae@0f5531a or later) | secret `GITHUB_TOKEN` (fine-grained, read-only: pull requests, issues, metadata); host `api.github.com` | on `main` |
-| `obsidian.open_tasks` | [plugin-obsidian](https://github.com/horae-dev/plugin-obsidian) `main` (#4) | the vault as the single `paths.write` entry in `horae.lock` (the plugin takes one vault path, read or write) | merged ([plugin-obsidian#8](https://github.com/horae-dev/plugin-obsidian/pull/8)), not released |
-| `obsidian.write_note` (act) | plugin-obsidian | the vault as `paths.write` in `horae.lock`; intent `note.replace_owned_block` | merged, not released |
-| `obsidian.write_task` (act, `mode: tasks`) | plugin-obsidian `main` (#4) | the same vault path; intents `task.create`, `task.update_status`; appends to the owned `Tasks.assistant.md` (`note:` to change it) | merged ([plugin-obsidian#8](https://github.com/horae-dev/plugin-obsidian/pull/8)), not released; `link_prefix` is checked by the core, the plugin ignores it |
+| `calendar.events` | [plugin-calendar](https://github.com/horae-dev/plugin-calendar) | secret `CALENDAR_ICS_URLS` (your ICS links); hosts `calendar.google.com`, `calendar.proton.me` | released ([plugin-calendar#6](https://github.com/horae-dev/plugin-calendar/pull/6)) |
+| `github.review_requests`, `github.assigned`, `github.mentions` | [plugin-github](https://github.com/horae-dev/plugin-github) 0.2.0 (tasks with links; needs a core at horae-dev/horae@0f5531a or later) | secret `GITHUB_TOKEN` (fine-grained, read-only: pull requests, issues, metadata); host `api.github.com` | released |
+| `obsidian.open_tasks` | [plugin-obsidian](https://github.com/horae-dev/plugin-obsidian) (#4) | the vault as the single `paths.write` entry in `horae.lock` (the plugin takes one vault path, read or write) | released ([plugin-obsidian#8](https://github.com/horae-dev/plugin-obsidian/pull/8)) |
+| `obsidian.write_note` (act) | plugin-obsidian | the vault as `paths.write` in `horae.lock`; intent `note.replace_owned_block` | released |
+| `obsidian.write_task` (act, `mode: tasks`) | plugin-obsidian (#4) | the same vault path; intents `task.create`, `task.update_status`; appends to the owned `Tasks.assistant.md` (`note:` to change it) | released ([plugin-obsidian#8](https://github.com/horae-dev/plugin-obsidian/pull/8)); `link_prefix` is checked by the core, the plugin ignores it |
 
-A source you don't have must be removed from your copy of the pipeline (an unknown tool fails the run before anything is called). The skill copes with any subset: what is missing is simply not in the note.
+The installed pipeline calls all three plugins, and an unknown tool fails the run before anything is called, so all three must be installed (removing a source means editing the pipeline: [#10](https://github.com/horae-dev/pack-daily-brief/issues/10)). The skill copes with any subset: what is missing is simply not in the note.
 
 ## Wording quality
 
@@ -209,7 +210,6 @@ Decisions taken with the maintainer ("go with what you think is good for the pro
 
 ### Core gaps
 
-- **Installing a pack**: nothing copies a pack's `provides.pipelines` into an instance (M4, `horae plugin add`).
 - **Fixture plugins under real tool names**: the test uses `horae.engine.testing.FixturePlugins`; the built-in `fixture-source` only provides `fixture-source.serve`.
 - **No value filter in the input view** (decision 4).
 - **`horae eval --record` writes only passing answers.**
